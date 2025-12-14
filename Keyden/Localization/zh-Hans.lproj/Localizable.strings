@@ -1,0 +1,113 @@
+/* Simplified Chinese Localization */
+
+// Common
+"copy" = "复制";
+"copied" = "已复制";
+"cancel" = "取消";
+"save" = "保存";
+"delete" = "删除";
+"confirm" = "确认";
+"settings" = "设置";
+"quit" = "退出";
+"search" = "搜索";
+"add" = "添加";
+
+// Token List
+"no_accounts" = "暂无账户";
+"no_results" = "未找到结果";
+"add_first_account" = "添加您的第一个 2FA 账户";
+"try_different_search" = "尝试其他搜索词";
+"search_accounts" = "搜索账户...";
+"pin_to_top" = "置顶";
+"unpin" = "取消置顶";
+"copy_code" = "复制验证码";
+
+// Add Token
+"add_account" = "添加账户";
+"scan_qr_code" = "扫描二维码或输入密钥";
+"paste_secret_key" = "粘贴 otpauth:// 链接或密钥";
+"scan_clipboard" = "剪贴板";
+"choose_image" = "选择图片";
+"capture_screen" = "截取屏幕";
+"capture_screen_hint" = "请使用 Cmd+Shift+4 截图，然后点击剪贴板";
+"capture_screen_error" = "截图失败";
+"scan_screen" = "截图识别";
+"scan_screen_hint" = "点击后框选屏幕上的二维码区域";
+"screen_recording_permission" = "需要屏幕录制权限";
+"screen_recording_permission_desc" = "Keyden 需要屏幕录制权限才能识别屏幕上的二维码。请在「系统设置 → 隐私与安全性 → 屏幕录制」中启用。";
+"open_settings" = "打开设置";
+"enter_manually" = "手动输入";
+"confirm_add" = "确认添加";
+"invalid_format" = "格式无效，请使用 otpauth:// 链接或 Base32 密钥";
+"no_qr_code_found" = "未在图片中找到二维码";
+"not_a_2fa_code" = "该二维码不是 2FA 验证码";
+"secret_required" = "密钥不能为空";
+"service" = "服务";
+"account" = "账户";
+"algorithm" = "算法";
+
+// Settings
+"general" = "通用";
+"sync" = "同步";
+"data" = "数据";
+"appearance" = "外观";
+"theme" = "主题";
+"theme_system" = "跟随系统";
+"theme_light" = "浅色";
+"theme_dark" = "深色";
+"clipboard" = "剪贴板";
+"auto_clear" = "自动清除剪贴板";
+"auto_clear_desc" = "复制后 30 秒自动清除";
+"statistics" = "统计";
+"accounts" = "账户数";
+"pinned" = "已置顶";
+"about" = "关于";
+"version" = "版本";
+
+// Language
+"language" = "语言";
+"language_system" = "跟随系统";
+"language_desc" = "选择您偏好的语言";
+
+// Sync
+"github_gist" = "GitHub Gist";
+"personal_access_token" = "个人访问令牌";
+"connected" = "已连接";
+"not_configured" = "未配置";
+"configure" = "配置";
+"change" = "更改";
+"auto_sync" = "自动同步";
+"auto_sync_desc" = "更改时自动同步到云端";
+"gist_id" = "Gist ID";
+"will_create_on_sync" = "首次同步时自动创建";
+"bind_existing" = "绑定已有";
+"manual_sync" = "手动同步";
+"push" = "推送";
+"pull" = "拉取";
+"last_sync" = "上次同步";
+"syncing" = "同步中...";
+"push_success" = "推送成功";
+"pull_success" = "拉取成功";
+"pull_confirm_title" = "从云端拉取";
+"pull_confirm_message" = "这将用云端数据替换本地所有账户，确定继续？";
+"token_saved" = "令牌保存成功";
+"invalid_token" = "令牌无效，请检查后重试";
+"open_github_token_settings" = "打开 GitHub Token 设置";
+"create_token_desc" = "创建一个具有 'gist' 权限的个人访问令牌";
+
+// Data
+"export" = "导出";
+"export_desc" = "将所有账户导出为 JSON 文件，用于备份或迁移。";
+"export_button" = "导出";
+"export_success" = "导出成功";
+"import" = "导入";
+"import_desc" = "从之前导出的 JSON 文件中导入账户。";
+"import_button" = "导入";
+"merge_with_existing" = "与现有账户合并";
+"duplicates_skipped" = "重复账户将被跳过";
+"import_confirm_title" = "导入账户";
+"import_confirm_message" = "这将把导入的账户与现有账户合并，确定继续？";
+"import_success" = "导入成功";
+"security_warning" = "导出的文件包含未加密的密钥，请妥善保管！";
+"unencrypted_json" = "未加密的 JSON 格式";
+

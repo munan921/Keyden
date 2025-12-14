@@ -1,0 +1,1009 @@
+//
+//  SettingsView.swift
+//  Keyden
+//
+//  Settings - Modern design with theme picker
+//
+
+import SwiftUI
+
+struct SettingsView: View {
+    @Binding var isPresented: Bool
+    @StateObject private var themeManager = ThemeManager.shared
+    @State private var selectedTab = 0
+    
+    private var theme: ModernTheme {
+        ModernTheme(isDark: themeManager.isDark)
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                // Back button (icon only)
+                Button(action: { isPresented = false }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(theme.accent)
+                        .frame(width: 28, height: 28)
+                        .background(theme.accent.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                
+                Spacer()
+                
+                Text(L10n.settings)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(theme.textPrimary)
+                
+                Spacer()
+                
+                // Placeholder for symmetry
+                Color.clear
+                    .frame(width: 28, height: 1)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            
+            Divider()
+                .background(theme.separator)
+            
+            // Tabs
+            HStack(spacing: 4) {
+                TabPill(title: L10n.general, icon: "gearshape", isSelected: selectedTab == 0, theme: theme) { selectedTab = 0 }
+                TabPill(title: L10n.sync, icon: "arrow.triangle.2.circlepath", isSelected: selectedTab == 1, theme: theme) { selectedTab = 1 }
+                TabPill(title: L10n.data, icon: "square.and.arrow.up.on.square", isSelected: selectedTab == 2, theme: theme) { selectedTab = 2 }
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            
+            // Content
+            ScrollView {
+                if selectedTab == 0 {
+                    GeneralTabContent(theme: theme)
+                } else if selectedTab == 1 {
+                    SyncTabContent(theme: theme)
+                } else {
+                    DataTabContent(theme: theme)
+                }
+            }
+            
+            Spacer(minLength: 0)
+        }
+        .background(theme.background)
+    }
+}
+
+// MARK: - Tab Pill
+struct TabPill: View {
+    let title: String
+    let icon: String
+    let isSelected: Bool
+    let theme: ModernTheme
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 5) {
+                Image(systemName: icon)
+                    .font(.system(size: 11))
+                Text(title)
+                    .font(.system(size: 12, weight: isSelected ? .semibold : .medium))
+            }
+            .foregroundColor(isSelected ? .white : theme.textSecondary)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(
+                Capsule()
+                    .fill(isSelected ? theme.accentGradient : LinearGradient(colors: [theme.cardBackground], startPoint: .top, endPoint: .bottom))
+            )
+            .overlay(
+                Capsule()
+                    .stroke(isSelected ? Color.clear : theme.border, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - General Tab
+struct GeneralTabContent: View {
+    let theme: ModernTheme
+    @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var languageManager = LanguageManager.shared
+    @AppStorage("autoClearClipboard") private var autoClearClipboard = false
+    @StateObject private var vaultService = VaultService.shared
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            // Theme section
+            SettingsCard(title: L10n.appearance, icon: "paintbrush.fill", theme: theme) {
+                VStack(spacing: 12) {
+                    HStack {
+                        Text(L10n.theme)
+                            .font(.system(size: 13))
+                            .foregroundColor(theme.textPrimary)
+                        Spacer()
+                    }
+                    
+                    HStack(spacing: 8) {
+                        ForEach(ThemeMode.allCases, id: \.self) { mode in
+                            ThemeOption(
+                                mode: mode,
+                                isSelected: themeManager.mode == mode,
+                                theme: theme
+                            ) {
+                                themeManager.mode = mode
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Language section
+            SettingsCard(title: L10n.language, icon: "globe", theme: theme) {
+                VStack(spacing: 12) {
+                    HStack {
+                        Text(L10n.languageDesc)
+                            .font(.system(size: 12))
+                            .foregroundColor(theme.textSecondary)
+                        Spacer()
+                    }
+                    
+                    HStack(spacing: 8) {
+                        ForEach(LanguageMode.allCases, id: \.self) { mode in
+                            LanguageOption(
+                                mode: mode,
+                                isSelected: languageManager.languageMode == mode,
+                                theme: theme
+                            ) {
+                                languageManager.languageMode = mode
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Clipboard section
+            SettingsCard(title: L10n.clipboard, icon: "doc.on.clipboard.fill", theme: theme) {
+                Toggle(isOn: $autoClearClipboard) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(L10n.autoClear)
+                            .font(.system(size: 13))
+                            .foregroundColor(theme.textPrimary)
+                        Text(L10n.autoClearDesc)
+                            .font(.system(size: 11))
+                            .foregroundColor(theme.textSecondary)
+                    }
+                }
+                .toggleStyle(.switch)
+                .controlSize(.small)
+            }
+            
+            // Stats section
+            SettingsCard(title: L10n.statistics, icon: "chart.bar.fill", theme: theme) {
+                HStack {
+                    StatItem(label: L10n.accounts, value: "\(vaultService.vault.tokens.count)", icon: "key.fill", theme: theme)
+                    Divider().frame(height: 30)
+                    StatItem(label: L10n.pinned, value: "\(vaultService.vault.tokens.filter { $0.isPinned }.count)", icon: "pin.fill", theme: theme)
+                }
+            }
+            
+            // About section
+            SettingsCard(title: L10n.about, icon: "info.circle.fill", theme: theme) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Keyden")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(theme.textPrimary)
+                        Text("2FA Authenticator for macOS")
+                            .font(.system(size: 11))
+                            .foregroundColor(theme.textSecondary)
+                    }
+                    Spacer()
+                    Text("v1.0.0")
+                        .font(.system(size: 11, weight: .medium, design: .monospaced))
+                        .foregroundColor(theme.textTertiary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(theme.inputBackground)
+                        .cornerRadius(4)
+                }
+            }
+        }
+        .padding(16)
+    }
+}
+
+// MARK: - Language Option
+struct LanguageOption: View {
+    let mode: LanguageMode
+    let isSelected: Bool
+    let theme: ModernTheme
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(isSelected ? theme.accent.opacity(0.15) : theme.inputBackground)
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: mode.icon)
+                        .font(.system(size: 18))
+                        .foregroundColor(isSelected ? theme.accent : theme.textSecondary)
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isSelected ? theme.accent : Color.clear, lineWidth: 2)
+                )
+                
+                Text(mode.displayName)
+                    .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
+                    .foregroundColor(isSelected ? theme.accent : theme.textSecondary)
+            }
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - Theme Option
+struct ThemeOption: View {
+    let mode: ThemeMode
+    let isSelected: Bool
+    let theme: ModernTheme
+    let action: () -> Void
+    
+    private var localizedLabel: String {
+        switch mode {
+        case .system: return L10n.themeSystem
+        case .light: return L10n.themeLight
+        case .dark: return L10n.themeDark
+        }
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(isSelected ? theme.accent.opacity(0.15) : theme.inputBackground)
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: mode.icon)
+                        .font(.system(size: 18))
+                        .foregroundColor(isSelected ? theme.accent : theme.textSecondary)
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isSelected ? theme.accent : Color.clear, lineWidth: 2)
+                )
+                
+                Text(localizedLabel)
+                    .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
+                    .foregroundColor(isSelected ? theme.accent : theme.textSecondary)
+            }
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - Stat Item
+struct StatItem: View {
+    let label: String
+    let value: String
+    let icon: String
+    let theme: ModernTheme
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 12))
+                .foregroundColor(theme.accent)
+            
+            VStack(alignment: .leading, spacing: 1) {
+                Text(value)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundColor(theme.textPrimary)
+                Text(label)
+                    .font(.system(size: 10))
+                    .foregroundColor(theme.textSecondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - Sync Tab
+struct SyncTabContent: View {
+    let theme: ModernTheme
+    @StateObject private var gistService = GistSyncService.shared
+    @StateObject private var vaultService = VaultService.shared
+    @AppStorage("autoSync") private var autoSync = true
+    
+    @State private var showTokenInput = false
+    @State private var showGistInput = false
+    @State private var gistIdInput = ""
+    @State private var isValidating = false
+    @State private var message: (text: String, isError: Bool)?
+    @State private var showPullConfirm = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            // GitHub Gist section
+            SettingsCard(title: L10n.githubGist, icon: "cloud.fill", theme: theme) {
+                VStack(alignment: .leading, spacing: 12) {
+                    // Token status
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(L10n.personalAccessToken)
+                                .font(.system(size: 13))
+                                .foregroundColor(theme.textPrimary)
+                            if gistService.isConfigured {
+                                HStack(spacing: 4) {
+                                    Circle()
+                                        .fill(theme.success)
+                                        .frame(width: 6, height: 6)
+                                    Text(L10n.connected)
+                                        .font(.system(size: 11))
+                                        .foregroundColor(theme.success)
+                                }
+                            } else {
+                                Text(L10n.notConfigured)
+                                    .font(.system(size: 11))
+                                    .foregroundColor(theme.textSecondary)
+                            }
+                        }
+                        
+                        Spacer()
+                        
+                        Button(gistService.isConfigured ? L10n.change : L10n.configure) {
+                            showTokenInput = true
+                        }
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(theme.accent)
+                        .cornerRadius(4)
+                        .buttonStyle(.plain)
+                    }
+                    
+                    if gistService.isConfigured {
+                        Divider().background(theme.separator)
+                        
+                        // Auto sync toggle
+                        Toggle(isOn: $autoSync) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(L10n.autoSync)
+                                    .font(.system(size: 13))
+                                    .foregroundColor(theme.textPrimary)
+                                Text(L10n.autoSyncDesc)
+                                    .font(.system(size: 11))
+                                    .foregroundColor(theme.textSecondary)
+                            }
+                        }
+                        .toggleStyle(.switch)
+                        .controlSize(.small)
+                        
+                        Divider().background(theme.separator)
+                        
+                        // Gist ID
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(L10n.gistId)
+                                    .font(.system(size: 13))
+                                    .foregroundColor(theme.textPrimary)
+                                if let gistId = gistService.gistId {
+                                    Text(gistId)
+                                        .font(.system(size: 10, design: .monospaced))
+                                        .foregroundColor(theme.textSecondary)
+                                        .lineLimit(1)
+                                } else {
+                                    Text(L10n.willCreateOnSync)
+                                        .font(.system(size: 11))
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                            }
+                            
+                            Spacer()
+                            
+                            Button(L10n.bindExisting) {
+                                showGistInput = true
+                            }
+                            .font(.system(size: 11))
+                            .foregroundColor(theme.accent)
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+            
+            if gistService.isConfigured {
+                // Sync actions
+                SettingsCard(title: L10n.manualSync, icon: "arrow.triangle.2.circlepath", theme: theme) {
+                    HStack(spacing: 10) {
+                        SyncButton(
+                            title: L10n.push,
+                            icon: "arrow.up.circle.fill",
+                            isLoading: gistService.isSyncing,
+                            theme: theme
+                        ) {
+                            push()
+                        }
+                        
+                        SyncButton(
+                            title: L10n.pull,
+                            icon: "arrow.down.circle.fill",
+                            isLoading: gistService.isSyncing,
+                            isDisabled: !gistService.hasGist,
+                            theme: theme
+                        ) {
+                            showPullConfirm = true
+                        }
+                    }
+                    
+                    if let lastSync = gistService.lastSyncDate {
+                        HStack {
+                            Image(systemName: "clock")
+                                .font(.system(size: 10))
+                            Text("\(L10n.lastSync): \(lastSync, style: .relative)")
+                                .font(.system(size: 11))
+                        }
+                        .foregroundColor(theme.textTertiary)
+                        .padding(.top, 8)
+                    }
+                }
+            }
+            
+            // Message
+            if let msg = message {
+                HStack(spacing: 6) {
+                    Image(systemName: msg.isError ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
+                        .font(.system(size: 12))
+                    Text(msg.text)
+                        .font(.system(size: 12))
+                }
+                .foregroundColor(msg.isError ? theme.danger : theme.success)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill((msg.isError ? theme.danger : theme.success).opacity(0.1))
+                )
+            }
+        }
+        .padding(16)
+        .sheet(isPresented: $showTokenInput) {
+            TokenInputSheet(isPresented: $showTokenInput, isValidating: $isValidating, theme: theme) { newToken in
+                validateAndSaveToken(newToken)
+            }
+        }
+        .sheet(isPresented: $showGistInput) {
+            GistInputSheet(isPresented: $showGistInput, gistId: $gistIdInput, theme: theme) {
+                gistService.setGistId(gistIdInput)
+                gistIdInput = ""
+            }
+        }
+        .alert(L10n.pullConfirmTitle, isPresented: $showPullConfirm) {
+            Button(L10n.cancel, role: .cancel) {}
+            Button(L10n.pull, role: .destructive) { pull() }
+        } message: {
+            Text(L10n.pullConfirmMessage)
+        }
+    }
+    
+    private func validateAndSaveToken(_ token: String) {
+        isValidating = true
+        message = nil
+        
+        Task {
+            let valid = await gistService.validateToken(token)
+            await MainActor.run {
+                isValidating = false
+                if valid {
+                    gistService.setToken(token)
+                    showTokenInput = false
+                    message = ("Token saved successfully", false)
+                } else {
+                    message = ("Invalid token. Check your token and try again.", true)
+                }
+            }
+        }
+    }
+    
+    private func push() {
+        message = nil
+        Task {
+            do {
+                try await gistService.push()
+                message = ("Pushed successfully", false)
+            } catch {
+                message = (error.localizedDescription, true)
+            }
+        }
+    }
+    
+    private func pull() {
+        message = nil
+        Task {
+            do {
+                try await gistService.pull()
+                message = ("Pulled successfully", false)
+            } catch {
+                message = (error.localizedDescription, true)
+            }
+        }
+    }
+}
+
+// MARK: - Data Tab (Import/Export)
+struct DataTabContent: View {
+    let theme: ModernTheme
+    @StateObject private var vaultService = VaultService.shared
+    
+    @State private var showingExportSuccess = false
+    @State private var showingImportConfirm = false
+    @State private var importURL: URL?
+    @State private var message: (text: String, isError: Bool)?
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            // Export section
+            SettingsCard(title: L10n.export, icon: "square.and.arrow.up.fill", theme: theme) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(L10n.exportDesc)
+                        .font(.system(size: 12))
+                        .foregroundColor(theme.textSecondary)
+                    
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("\(vaultService.vault.tokens.count) \(L10n.accounts)")
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(theme.textPrimary)
+                            Text(L10n.unencryptedJson)
+                                .font(.system(size: 11))
+                                .foregroundColor(theme.textTertiary)
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: exportData) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 11))
+                                Text(L10n.export)
+                                    .font(.system(size: 12, weight: .medium))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(theme.accent)
+                            .cornerRadius(6)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            
+            // Import section
+            SettingsCard(title: L10n.importData, icon: "square.and.arrow.down.fill", theme: theme) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(L10n.importDesc)
+                        .font(.system(size: 12))
+                        .foregroundColor(theme.textSecondary)
+                    
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(L10n.mergeWithExisting)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(theme.textPrimary)
+                            Text(L10n.duplicatesSkipped)
+                                .font(.system(size: 11))
+                                .foregroundColor(theme.textTertiary)
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: selectImportFile) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "square.and.arrow.down")
+                                    .font(.system(size: 11))
+                                Text(L10n.importData)
+                                    .font(.system(size: 12, weight: .medium))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(theme.accent)
+                            .cornerRadius(6)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            
+            // Warning
+            HStack(spacing: 8) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 12))
+                    .foregroundColor(theme.warning)
+                
+                Text(L10n.securityWarning)
+                    .font(.system(size: 11))
+                    .foregroundColor(theme.textSecondary)
+            }
+            .padding(10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(theme.warning.opacity(0.1))
+            )
+            
+            // Message
+            if let msg = message {
+                HStack(spacing: 6) {
+                    Image(systemName: msg.isError ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
+                        .font(.system(size: 12))
+                    Text(msg.text)
+                        .font(.system(size: 12))
+                }
+                .foregroundColor(msg.isError ? theme.danger : theme.success)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill((msg.isError ? theme.danger : theme.success).opacity(0.1))
+                )
+            }
+        }
+        .padding(16)
+        .alert(L10n.importConfirmTitle, isPresented: $showingImportConfirm) {
+            Button(L10n.cancel, role: .cancel) { importURL = nil }
+            Button(L10n.importData) { performImport() }
+        } message: {
+            Text(L10n.importConfirmMessage)
+        }
+    }
+    
+    private func exportData() {
+        message = nil
+        
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.json]
+        panel.nameFieldStringValue = "keyden_backup_\(formattedDate()).json"
+        panel.message = "Choose where to save your backup"
+        
+        panel.begin { response in
+            if response == .OK, let url = panel.url {
+                do {
+                    let data = try vaultService.getExportData()
+                    try data.write(to: url, options: .atomic)
+                    message = ("Exported \(vaultService.vault.tokens.count) accounts successfully", false)
+                } catch {
+                    message = ("Export failed: \(error.localizedDescription)", true)
+                }
+            }
+        }
+    }
+    
+    private func selectImportFile() {
+        message = nil
+        
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        panel.allowedContentTypes = [.json]
+        panel.message = "Select a Keyden backup file"
+        
+        panel.begin { response in
+            if response == .OK, let url = panel.url {
+                importURL = url
+                showingImportConfirm = true
+            }
+        }
+    }
+    
+    private func performImport() {
+        guard let url = importURL else { return }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            let importedVault = try JSONDecoder().decode(Vault.self, from: data)
+            
+            var addedCount = 0
+            var skippedCount = 0
+            
+            for token in importedVault.tokens {
+                // Check for duplicate by secret
+                let isDuplicate = vaultService.vault.tokens.contains { $0.secret == token.secret }
+                if isDuplicate {
+                    skippedCount += 1
+                } else {
+                    try vaultService.addToken(token)
+                    addedCount += 1
+                }
+            }
+            
+            if addedCount > 0 {
+                message = ("Imported \(addedCount) accounts (\(skippedCount) duplicates skipped)", false)
+            } else {
+                message = ("No new accounts to import (\(skippedCount) duplicates)", false)
+            }
+        } catch {
+            message = ("Import failed: \(error.localizedDescription)", true)
+        }
+        
+        importURL = nil
+    }
+    
+    private func formattedDate() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd_HHmm"
+        return formatter.string(from: Date())
+    }
+}
+
+// MARK: - Settings Card
+struct SettingsCard<Content: View>: View {
+    let title: String
+    let icon: String
+    let theme: ModernTheme
+    @ViewBuilder let content: Content
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 11))
+                    .foregroundColor(theme.accent)
+                Text(title.uppercased())
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(theme.textTertiary)
+                    .tracking(0.5)
+            }
+            
+            content
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(theme.cardBackground)
+                        .shadow(color: theme.cardShadow, radius: 3, x: 0, y: 1)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(theme.border.opacity(0.5), lineWidth: 1)
+                )
+        }
+    }
+}
+
+// MARK: - Sync Button
+struct SyncButton: View {
+    let title: String
+    let icon: String
+    var isLoading: Bool = false
+    var isDisabled: Bool = false
+    let theme: ModernTheme
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                if isLoading {
+                    ProgressView()
+                        .scaleEffect(0.6)
+                        .progressViewStyle(CircularProgressViewStyle())
+                } else {
+                    Image(systemName: icon)
+                        .font(.system(size: 13))
+                }
+                Text(title)
+                    .font(.system(size: 12, weight: .semibold))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(
+                Group {
+                    if isDisabled {
+                        RoundedRectangle(cornerRadius: 8).fill(theme.inputBackground)
+                    } else {
+                        RoundedRectangle(cornerRadius: 8).fill(theme.accentGradient)
+                    }
+                }
+            )
+            .foregroundColor(isDisabled ? theme.textTertiary : .white)
+        }
+        .buttonStyle(.plain)
+        .disabled(isLoading || isDisabled)
+    }
+}
+
+// MARK: - Token Input Sheet
+struct TokenInputSheet: View {
+    @Binding var isPresented: Bool
+    @Binding var isValidating: Bool
+    let theme: ModernTheme
+    let onSave: (String) -> Void
+    
+    @State private var token = ""
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Header
+            HStack {
+                Text("GitHub Token")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(theme.textPrimary)
+                Spacer()
+                Button(action: { isPresented = false }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(theme.textTertiary)
+                }
+                .buttonStyle(.plain)
+            }
+            
+            // Instructions
+            VStack(spacing: 8) {
+                Text(L10n.createTokenDesc)
+                    .font(.system(size: 12))
+                    .foregroundColor(theme.textSecondary)
+                    .multilineTextAlignment(.center)
+                
+                Button(action: openGitHubTokenPage) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.up.right.square.fill")
+                            .font(.system(size: 11))
+                        Text(L10n.openGitHubTokenSettings)
+                            .font(.system(size: 12, weight: .medium))
+                    }
+                    .foregroundColor(theme.accent)
+                }
+                .buttonStyle(.plain)
+            }
+            
+            // Input
+            SecureField("ghp_xxxxxxxxxxxx", text: $token)
+                .textFieldStyle(.plain)
+                .font(.system(size: 13, design: .monospaced))
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(theme.inputBackground)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(theme.border, lineWidth: 1)
+                )
+            
+            // Actions
+            HStack(spacing: 10) {
+                Button(L10n.cancel) { isPresented = false }
+                    .font(.system(size: 13))
+                    .foregroundColor(theme.textSecondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(theme.inputBackground)
+                    .cornerRadius(8)
+                    .buttonStyle(.plain)
+                
+                Button(action: { onSave(token) }) {
+                    HStack {
+                        if isValidating {
+                            ProgressView().scaleEffect(0.7)
+                        } else {
+                            Text(L10n.save)
+                        }
+                    }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        Group {
+                            if token.isEmpty {
+                                AnyView(theme.inputBackground)
+                            } else {
+                                AnyView(theme.accentGradient)
+                            }
+                        }
+                    )
+                    .cornerRadius(8)
+                }
+                .buttonStyle(.plain)
+                .disabled(token.isEmpty || isValidating)
+            }
+        }
+        .padding(20)
+        .frame(width: 320)
+        .background(theme.background)
+    }
+    
+    private func openGitHubTokenPage() {
+        if let url = URL(string: "https://github.com/settings/tokens/new?scopes=gist&description=Keyden") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+}
+
+// MARK: - Gist Input Sheet
+struct GistInputSheet: View {
+    @Binding var isPresented: Bool
+    @Binding var gistId: String
+    let theme: ModernTheme
+    let onSave: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Text(L10n.bindExisting)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(theme.textPrimary)
+                Spacer()
+                Button(action: { isPresented = false }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(theme.textTertiary)
+                }
+                .buttonStyle(.plain)
+            }
+            
+            Text("Gist ID")
+                .font(.system(size: 12))
+                .foregroundColor(theme.textSecondary)
+            
+            TextField("e.g. abc123def456...", text: $gistId)
+                .textFieldStyle(.plain)
+                .font(.system(size: 13, design: .monospaced))
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(theme.inputBackground)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(theme.border, lineWidth: 1)
+                )
+            
+            HStack(spacing: 10) {
+                Button(L10n.cancel) { isPresented = false }
+                    .font(.system(size: 13))
+                    .foregroundColor(theme.textSecondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(theme.inputBackground)
+                    .cornerRadius(8)
+                    .buttonStyle(.plain)
+                
+                Button("Bind") {
+                    onSave()
+                    isPresented = false
+                }
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(
+                    Group {
+                        if gistId.isEmpty {
+                            AnyView(theme.inputBackground)
+                        } else {
+                            AnyView(theme.accentGradient)
+                        }
+                    }
+                )
+                .cornerRadius(8)
+                .buttonStyle(.plain)
+                .disabled(gistId.isEmpty)
+            }
+        }
+        .padding(20)
+        .frame(width: 280)
+        .background(theme.background)
+    }
+}

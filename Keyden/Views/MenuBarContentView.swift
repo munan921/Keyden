@@ -1,0 +1,535 @@
+//
+//  MenuBarContentView.swift
+//  Keyden
+//
+//  Main menu bar dropdown - Modern design with embedded views
+//
+
+import SwiftUI
+
+// MARK: - View Mode
+enum ViewMode {
+    case list
+    case addAccount
+    case settings
+}
+
+struct MenuBarContentView: View {
+    @StateObject private var vaultService = VaultService.shared
+    @StateObject private var gistService = GistSyncService.shared
+    @StateObject private var themeManager = ThemeManager.shared
+    
+    @State private var searchText = ""
+    @State private var copiedTokenId: UUID?
+    @State private var draggedToken: Token?
+    @State private var currentView: ViewMode = .list
+    
+    private var theme: ModernTheme {
+        ModernTheme(isDark: themeManager.isDark)
+    }
+    
+    private var sortedTokens: [Token] {
+        vaultService.vault.tokens.sorted { lhs, rhs in
+            if lhs.isPinned != rhs.isPinned {
+                return lhs.isPinned
+            }
+            return lhs.sortOrder < rhs.sortOrder
+        }
+    }
+    
+    private var filteredTokens: [Token] {
+        if searchText.isEmpty {
+            return sortedTokens
+        }
+        return sortedTokens.filter {
+            $0.displayName.localizedCaseInsensitiveContains(searchText) ||
+            $0.account.localizedCaseInsensitiveContains(searchText) ||
+            $0.issuer.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            switch currentView {
+            case .list:
+                listView
+            case .addAccount:
+                AddTokenView(isPresented: Binding(
+                    get: { currentView == .addAccount },
+                    set: { if !$0 { currentView = .list } }
+                ))
+            case .settings:
+                SettingsView(isPresented: Binding(
+                    get: { currentView == .settings },
+                    set: { if !$0 { currentView = .list } }
+                ))
+            }
+        }
+        .frame(width: 340, height: 520)
+        .background(theme.background)
+        .environment(\.theme, theme)
+    }
+    
+    // MARK: - List View
+    private var listView: some View {
+        VStack(spacing: 0) {
+            headerBar
+            
+            Divider()
+                .background(theme.separator)
+            
+            if filteredTokens.isEmpty {
+                emptyState
+            } else {
+                tokenList
+            }
+            
+            Divider()
+                .background(theme.separator)
+            
+            footerBar
+        }
+    }
+    
+    // MARK: - Header
+    private var headerBar: some View {
+        HStack(spacing: 10) {
+            // Search field
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(theme.textTertiary)
+                
+                TextField(L10n.searchAccounts, text: $searchText)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13))
+                    .foregroundColor(theme.textPrimary)
+                
+                if !searchText.isEmpty {
+                    Button(action: { searchText = "" }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(theme.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(theme.inputBackground)
+            )
+            
+            // Add button
+            Button(action: { currentView = .addAccount }) {
+                Image(systemName: "plus")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(width: 30, height: 30)
+                    .background(theme.accentGradient)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+    }
+    
+    // MARK: - Token List
+    private var tokenList: some View {
+        ScrollView {
+            LazyVStack(spacing: 6) {
+                ForEach(filteredTokens) { token in
+                    TokenRow(
+                        token: token,
+                        copiedId: $copiedTokenId,
+                        onPin: { togglePin(token) },
+                        theme: theme
+                    )
+                    .onDrag {
+                        draggedToken = token
+                        return NSItemProvider(object: token.id.uuidString as NSString)
+                    }
+                    .onDrop(of: [.text], delegate: TokenDropDelegate(
+                        token: token,
+                        tokens: sortedTokens,
+                        draggedToken: $draggedToken,
+                        onReorder: reorderTokens
+                    ))
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+        }
+    }
+    
+    // MARK: - Empty State
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            
+            ZStack {
+                Circle()
+                    .fill(theme.accent.opacity(0.1))
+                    .frame(width: 70, height: 70)
+                
+                Image(systemName: searchText.isEmpty ? "key.fill" : "magnifyingglass")
+                    .font(.system(size: 28, weight: .medium))
+                    .foregroundColor(theme.accent)
+            }
+            
+            VStack(spacing: 6) {
+                Text(searchText.isEmpty ? L10n.noAccounts : L10n.noResults)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(theme.textPrimary)
+                
+                Text(searchText.isEmpty ? L10n.addFirstAccount : L10n.tryDifferentSearch)
+                    .font(.system(size: 13))
+                    .foregroundColor(theme.textSecondary)
+            }
+            
+            if searchText.isEmpty {
+                Button(action: { currentView = .addAccount }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus")
+                        Text(L10n.addAccount)
+                    }
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(theme.accentGradient)
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+            
+            Spacer()
+        }
+    }
+    
+    // MARK: - Footer
+    private var footerBar: some View {
+        HStack {
+            Button(action: { currentView = .settings }) {
+                HStack(spacing: 5) {
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 11))
+                    Text(L10n.settings)
+                        .font(.system(size: 11, weight: .medium))
+                }
+                .foregroundColor(theme.textSecondary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(theme.cardBackground.opacity(0.6))
+                .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            
+            Spacer()
+            
+            // Sync status
+            if gistService.isConfigured {
+                if gistService.isSyncing {
+                    HStack(spacing: 4) {
+                        ProgressView()
+                            .scaleEffect(0.45)
+                        Text(L10n.syncing)
+                            .font(.system(size: 10))
+                    }
+                    .foregroundColor(theme.textTertiary)
+                } else if let lastSync = gistService.lastSyncDate {
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.icloud.fill")
+                            .font(.system(size: 10))
+                        Text(lastSync, style: .relative)
+                            .font(.system(size: 10))
+                    }
+                    .foregroundColor(theme.success)
+                }
+            }
+            
+            Spacer()
+            
+            Button(action: { NSApp.terminate(nil) }) {
+                Text(L10n.quit)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(theme.textSecondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(theme.cardBackground.opacity(0.6))
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+    }
+    
+    // MARK: - Actions
+    
+    private func togglePin(_ token: Token) {
+        var updated = token
+        updated.isPinned.toggle()
+        try? vaultService.updateToken(updated)
+    }
+    
+    private func reorderTokens(_ from: Token, _ to: Token) {
+        guard from.id != to.id else { return }
+        
+        var tokens = sortedTokens
+        guard let fromIndex = tokens.firstIndex(where: { $0.id == from.id }),
+              let toIndex = tokens.firstIndex(where: { $0.id == to.id }) else { return }
+        
+        tokens.move(fromOffsets: IndexSet(integer: fromIndex), toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex)
+        
+        for (index, var token) in tokens.enumerated() {
+            token.sortOrder = index
+            try? vaultService.updateToken(token)
+        }
+    }
+}
+
+// MARK: - Token Row - Compact with Ring Progress
+struct TokenRow: View {
+    let token: Token
+    @Binding var copiedId: UUID?
+    let onPin: () -> Void
+    let theme: ModernTheme
+    
+    @State private var currentCode = ""
+    @State private var remainingSeconds = 30
+    @State private var timer: Timer?
+    @State private var isHovering = false
+    
+    private var isCopied: Bool { copiedId == token.id }
+    
+    private var progress: CGFloat {
+        CGFloat(remainingSeconds) / CGFloat(token.period)
+    }
+    
+    private var progressColor: Color {
+        if remainingSeconds <= 5 { return theme.danger }
+        if remainingSeconds <= 10 { return theme.warning }
+        return theme.accent
+    }
+    
+    var body: some View {
+        HStack(spacing: 10) {
+            // Left: Service icon (fixed 32x32)
+            serviceIcon
+            
+            // Middle: Title, Code, Account
+            VStack(alignment: .leading, spacing: 2) {
+                // Title with optional pin
+                HStack(spacing: 4) {
+                    Text(token.issuer.isEmpty ? token.displayName : token.issuer)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(theme.textPrimary)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    if token.isPinned {
+                        Image(systemName: "pin.fill")
+                            .font(.system(size: 7))
+                            .foregroundColor(theme.accent)
+                            .rotationEffect(.degrees(45))
+                    }
+                }
+                
+                // Code
+                Text(formatCode(currentCode))
+                    .font(.system(size: 18, weight: .bold, design: .monospaced))
+                    .foregroundColor(isCopied ? theme.success : theme.textPrimary)
+                
+                // Account
+                if !token.account.isEmpty {
+                    Text(token.account)
+                        .font(.system(size: 10))
+                        .foregroundColor(theme.textSecondary)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            
+            Spacer(minLength: 8)
+            
+            // Right: Ring progress + Copy icon (fixed size)
+            VStack(spacing: 6) {
+                ZStack {
+                    Circle()
+                        .stroke(progressColor.opacity(0.15), lineWidth: 2.5)
+                    Circle()
+                        .trim(from: 0, to: progress)
+                        .stroke(progressColor, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .animation(.linear(duration: 1), value: remainingSeconds)
+                }
+                .frame(width: 20, height: 20)
+                
+                Image(systemName: isCopied ? "checkmark" : "doc.on.doc")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(isCopied ? theme.success : theme.textTertiary)
+            }
+            .frame(width: 24)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(isHovering ? theme.cardBackgroundHover : theme.cardBackground)
+                .shadow(color: theme.cardShadow, radius: isHovering ? 3 : 1, x: 0, y: 1)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(
+                    token.isPinned ? theme.accent.opacity(0.5) : (isHovering ? theme.border.opacity(0.4) : theme.border.opacity(0.15)),
+                    lineWidth: 1
+                )
+        )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            copyCode()
+        }
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                isHovering = hovering
+            }
+        }
+        .contextMenu {
+            Button(action: onPin) {
+                Label(token.isPinned ? L10n.unpin : L10n.pinToTop, systemImage: token.isPinned ? "pin.slash" : "pin")
+            }
+            
+            Button(action: copyCode) {
+                Label(L10n.copyCode, systemImage: "doc.on.doc")
+            }
+            
+            Divider()
+            
+            Button(role: .destructive) {
+                try? VaultService.shared.deleteToken(id: token.id)
+            } label: {
+                Label(L10n.delete, systemImage: "trash")
+            }
+        }
+        .onAppear(perform: startTimer)
+        .onDisappear(perform: stopTimer)
+    }
+    
+    private var serviceIcon: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 5)
+                .fill(
+                    LinearGradient(
+                        colors: iconGradientColors,
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+            
+            Text(String((token.issuer.isEmpty ? token.displayName : token.issuer).prefix(1)).uppercased())
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(.white)
+        }
+        .frame(width: 32, height: 32)
+        .fixedSize()
+    }
+    
+    private var iconGradientColors: [Color] {
+        let name = token.issuer.isEmpty ? token.displayName : token.issuer
+        let hash = abs(name.hashValue)
+        let hue1 = Double(hash % 360) / 360.0
+        let hue2 = Double((hash + 30) % 360) / 360.0
+        return [
+            Color(hue: hue1, saturation: 0.65, brightness: 0.75),
+            Color(hue: hue2, saturation: 0.55, brightness: 0.65)
+        ]
+    }
+    
+    private func formatCode(_ code: String) -> String {
+        guard code.count >= 6 else { return code }
+        let mid = code.index(code.startIndex, offsetBy: code.count / 2)
+        return "\(code[..<mid]) \(code[mid...])"
+    }
+    
+    private func copyCode() {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(currentCode, forType: .string)
+        
+        withAnimation(.easeOut(duration: 0.2)) {
+            copiedId = token.id
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if copiedId == token.id {
+                withAnimation { copiedId = nil }
+            }
+        }
+        
+        // Auto-clear
+        if UserDefaults.standard.bool(forKey: "autoClearClipboard") {
+            let codeCopy = currentCode
+            DispatchQueue.main.asyncAfter(deadline: .now() + 30) {
+                if NSPasteboard.general.string(forType: .string) == codeCopy {
+                    NSPasteboard.general.clearContents()
+                }
+            }
+        }
+    }
+    
+    private func startTimer() {
+        updateCode()
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            updateCode()
+        }
+    }
+    
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
+    
+    private func updateCode() {
+        currentCode = TOTPService.shared.generateCode(for: token) ?? "------"
+        remainingSeconds = TOTPService.shared.remainingSeconds(for: token.period)
+    }
+}
+
+// MARK: - Drop Delegate for Reordering
+struct TokenDropDelegate: DropDelegate {
+    let token: Token
+    let tokens: [Token]
+    @Binding var draggedToken: Token?
+    let onReorder: (Token, Token) -> Void
+    
+    func performDrop(info: DropInfo) -> Bool {
+        draggedToken = nil
+        return true
+    }
+    
+    func dropEntered(info: DropInfo) {
+        guard let dragged = draggedToken, dragged.id != token.id else { return }
+        onReorder(dragged, token)
+    }
+    
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
+    }
+}
+
+// MARK: - Singleton Extensions
+extension TOTPService: ObservableObject {}
+
+// MARK: - Legacy Theme Support
+struct AppTheme {
+    static var background: Color { ModernTheme(isDark: ThemeManager.shared.isDark).background }
+    static var cardBackground: Color { ModernTheme(isDark: ThemeManager.shared.isDark).cardBackground }
+    static var accent: Color { ModernTheme(isDark: ThemeManager.shared.isDark).accent }
+    static var success: Color { ModernTheme(isDark: ThemeManager.shared.isDark).success }
+    static var warning: Color { ModernTheme(isDark: ThemeManager.shared.isDark).warning }
+    static var danger: Color { ModernTheme(isDark: ThemeManager.shared.isDark).danger }
+    static var textPrimary: Color { ModernTheme(isDark: ThemeManager.shared.isDark).textPrimary }
+    static var textSecondary: Color { ModernTheme(isDark: ThemeManager.shared.isDark).textSecondary }
+}

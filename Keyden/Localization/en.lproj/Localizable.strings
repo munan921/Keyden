@@ -1,0 +1,113 @@
+/* English Localization */
+
+// Common
+"copy" = "Copy";
+"copied" = "Copied";
+"cancel" = "Cancel";
+"save" = "Save";
+"delete" = "Delete";
+"confirm" = "Confirm";
+"settings" = "Settings";
+"quit" = "Quit";
+"search" = "Search";
+"add" = "Add";
+
+// Token List
+"no_accounts" = "No accounts yet";
+"no_results" = "No results found";
+"add_first_account" = "Add your first 2FA account";
+"try_different_search" = "Try a different search";
+"search_accounts" = "Search accounts...";
+"pin_to_top" = "Pin to Top";
+"unpin" = "Unpin";
+"copy_code" = "Copy Code";
+
+// Add Token
+"add_account" = "Add Account";
+"scan_qr_code" = "Scan QR Code or Enter Key";
+"paste_secret_key" = "Paste otpauth:// URL or secret key";
+"scan_clipboard" = "Clipboard";
+"choose_image" = "Choose Image";
+"capture_screen" = "Capture Screen";
+"capture_screen_hint" = "Use Cmd+Shift+4 to capture, then click Clipboard";
+"capture_screen_error" = "Screen capture failed";
+"scan_screen" = "Screenshot";
+"scan_screen_hint" = "Click to select the QR code area on screen";
+"screen_recording_permission" = "Screen Recording Permission Required";
+"screen_recording_permission_desc" = "Keyden needs screen recording permission to capture QR codes from your screen. Please enable it in System Settings → Privacy & Security → Screen Recording.";
+"open_settings" = "Open Settings";
+"enter_manually" = "Enter details manually";
+"confirm_add" = "Confirm & Add";
+"invalid_format" = "Invalid format. Use otpauth:// URL or Base32 secret";
+"no_qr_code_found" = "No QR code found in image";
+"not_a_2fa_code" = "QR code is not a 2FA code";
+"secret_required" = "Secret key is required";
+"service" = "Service";
+"account" = "Account";
+"algorithm" = "Algorithm";
+
+// Settings
+"general" = "General";
+"sync" = "Sync";
+"data" = "Data";
+"appearance" = "Appearance";
+"theme" = "Theme";
+"theme_system" = "System";
+"theme_light" = "Light";
+"theme_dark" = "Dark";
+"clipboard" = "Clipboard";
+"auto_clear" = "Auto-clear clipboard";
+"auto_clear_desc" = "Clear copied code after 30 seconds";
+"statistics" = "Statistics";
+"accounts" = "Accounts";
+"pinned" = "Pinned";
+"about" = "About";
+"version" = "Version";
+
+// Language
+"language" = "Language";
+"language_system" = "System";
+"language_desc" = "Choose your preferred language";
+
+// Sync
+"github_gist" = "GitHub Gist";
+"personal_access_token" = "Personal Access Token";
+"connected" = "Connected";
+"not_configured" = "Not configured";
+"configure" = "Configure";
+"change" = "Change";
+"auto_sync" = "Auto-sync";
+"auto_sync_desc" = "Sync automatically when changes are made";
+"gist_id" = "Gist ID";
+"will_create_on_sync" = "Will be created on first sync";
+"bind_existing" = "Bind Existing";
+"manual_sync" = "Manual Sync";
+"push" = "Push";
+"pull" = "Pull";
+"last_sync" = "Last sync";
+"syncing" = "Syncing...";
+"push_success" = "Pushed successfully";
+"pull_success" = "Pulled successfully";
+"pull_confirm_title" = "Pull from Backup";
+"pull_confirm_message" = "This will replace all local accounts with the backup. Continue?";
+"token_saved" = "Token saved successfully";
+"invalid_token" = "Invalid token. Check your token and try again.";
+"open_github_token_settings" = "Open GitHub Token Settings";
+"create_token_desc" = "Create a Personal Access Token with the 'gist' scope";
+
+// Data
+"export" = "Export";
+"export_desc" = "Export all accounts to a JSON file for backup or migration.";
+"export_button" = "Export";
+"export_success" = "Exported successfully";
+"import" = "Import";
+"import_desc" = "Import accounts from a previously exported JSON file.";
+"import_button" = "Import";
+"merge_with_existing" = "Merge with existing";
+"duplicates_skipped" = "Duplicates will be skipped";
+"import_confirm_title" = "Import Accounts";
+"import_confirm_message" = "This will merge imported accounts with your existing accounts. Continue?";
+"import_success" = "Imported successfully";
+"security_warning" = "Exported files contain unencrypted secret keys. Keep them secure!";
+"unencrypted_json" = "Unencrypted JSON format";
+
