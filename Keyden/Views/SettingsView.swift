@@ -10,10 +10,16 @@ import SwiftUI
 struct SettingsView: View {
     @Binding var isPresented: Bool
     @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var languageManager = LanguageManager.shared
     @State private var selectedTab = 0
     
     private var theme: ModernTheme {
         ModernTheme(isDark: themeManager.isDark)
+    }
+    
+    // Computed properties for tab titles to ensure they update on language change
+    private var tabTitles: [String] {
+        [L10n.general, L10n.sync, L10n.data]
     }
     
     var body: some View {
@@ -51,12 +57,13 @@ struct SettingsView: View {
             
             // Tabs
             HStack(spacing: 4) {
-                TabPill(title: L10n.general, icon: "gearshape", isSelected: selectedTab == 0, theme: theme) { selectedTab = 0 }
-                TabPill(title: L10n.sync, icon: "arrow.triangle.2.circlepath", isSelected: selectedTab == 1, theme: theme) { selectedTab = 1 }
-                TabPill(title: L10n.data, icon: "square.and.arrow.up.on.square", isSelected: selectedTab == 2, theme: theme) { selectedTab = 2 }
+                TabPill(title: tabTitles[0], icon: "gearshape", isSelected: selectedTab == 0, theme: theme) { selectedTab = 0 }
+                TabPill(title: tabTitles[1], icon: "arrow.triangle.2.circlepath", isSelected: selectedTab == 1, theme: theme) { selectedTab = 1 }
+                TabPill(title: tabTitles[2], icon: "square.and.arrow.up.on.square", isSelected: selectedTab == 2, theme: theme) { selectedTab = 2 }
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
+            .id(languageManager.languageMode) // Force refresh on language change
             
             // Content
             ScrollView {
@@ -115,53 +122,61 @@ struct GeneralTabContent: View {
     @AppStorage("autoClearClipboard") private var autoClearClipboard = false
     @StateObject private var vaultService = VaultService.shared
     
+    private func themeDisplayName(_ mode: ThemeMode) -> String {
+        switch mode {
+        case .system: return L10n.themeSystem
+        case .light: return L10n.themeLight
+        case .dark: return L10n.themeDark
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             // Theme section
             SettingsCard(title: L10n.appearance, icon: "paintbrush.fill", theme: theme) {
-                VStack(spacing: 12) {
-                    HStack {
+                HStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: themeManager.mode.icon)
+                            .font(.system(size: 14))
+                            .foregroundColor(theme.accent)
                         Text(L10n.theme)
                             .font(.system(size: 13))
                             .foregroundColor(theme.textPrimary)
-                        Spacer()
                     }
                     
-                    HStack(spacing: 8) {
+                    Spacer()
+                    
+                    Picker("", selection: $themeManager.mode) {
                         ForEach(ThemeMode.allCases, id: \.self) { mode in
-                            ThemeOption(
-                                mode: mode,
-                                isSelected: themeManager.mode == mode,
-                                theme: theme
-                            ) {
-                                themeManager.mode = mode
-                            }
+                            Text(themeDisplayName(mode)).tag(mode)
                         }
                     }
+                    .pickerStyle(.menu)
+                    .frame(width: 100)
                 }
             }
             
             // Language section
             SettingsCard(title: L10n.language, icon: "globe", theme: theme) {
-                VStack(spacing: 12) {
-                    HStack {
+                HStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: languageManager.languageMode.icon)
+                            .font(.system(size: 14))
+                            .foregroundColor(theme.accent)
                         Text(L10n.languageDesc)
-                            .font(.system(size: 12))
-                            .foregroundColor(theme.textSecondary)
-                        Spacer()
+                            .font(.system(size: 13))
+                            .foregroundColor(theme.textPrimary)
                     }
                     
-                    HStack(spacing: 8) {
+                    Spacer()
+                    
+                    Picker("", selection: $languageManager.languageMode) {
                         ForEach(LanguageMode.allCases, id: \.self) { mode in
-                            LanguageOption(
-                                mode: mode,
-                                isSelected: languageManager.languageMode == mode,
-                                theme: theme
-                            ) {
-                                languageManager.languageMode = mode
-                            }
+                            Text(mode.displayName).tag(mode)
                         }
                     }
+                    .pickerStyle(.menu)
+                    .frame(width: 100)
                 }
             }
             
@@ -213,82 +228,6 @@ struct GeneralTabContent: View {
             }
         }
         .padding(16)
-    }
-}
-
-// MARK: - Language Option
-struct LanguageOption: View {
-    let mode: LanguageMode
-    let isSelected: Bool
-    let theme: ModernTheme
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 6) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(isSelected ? theme.accent.opacity(0.15) : theme.inputBackground)
-                        .frame(width: 44, height: 44)
-                    
-                    Image(systemName: mode.icon)
-                        .font(.system(size: 18))
-                        .foregroundColor(isSelected ? theme.accent : theme.textSecondary)
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(isSelected ? theme.accent : Color.clear, lineWidth: 2)
-                )
-                
-                Text(mode.displayName)
-                    .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? theme.accent : theme.textSecondary)
-            }
-        }
-        .buttonStyle(.plain)
-        .frame(maxWidth: .infinity)
-    }
-}
-
-// MARK: - Theme Option
-struct ThemeOption: View {
-    let mode: ThemeMode
-    let isSelected: Bool
-    let theme: ModernTheme
-    let action: () -> Void
-    
-    private var localizedLabel: String {
-        switch mode {
-        case .system: return L10n.themeSystem
-        case .light: return L10n.themeLight
-        case .dark: return L10n.themeDark
-        }
-    }
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 6) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(isSelected ? theme.accent.opacity(0.15) : theme.inputBackground)
-                        .frame(width: 44, height: 44)
-                    
-                    Image(systemName: mode.icon)
-                        .font(.system(size: 18))
-                        .foregroundColor(isSelected ? theme.accent : theme.textSecondary)
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(isSelected ? theme.accent : Color.clear, lineWidth: 2)
-                )
-                
-                Text(localizedLabel)
-                    .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? theme.accent : theme.textSecondary)
-            }
-        }
-        .buttonStyle(.plain)
-        .frame(maxWidth: .infinity)
     }
 }
 

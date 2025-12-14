@@ -8,6 +8,7 @@
 import Foundation
 import Vision
 import AppKit
+import CoreImage.CIFilterBuiltins
 
 /// Result of QR code scanning
 enum QRScanResult {
@@ -199,6 +200,80 @@ final class QRCodeService {
                     continuation.resume(returning: result)
                 }
             }
+        }
+    }
+    
+    // MARK: - QR Code Generation
+    
+    /// Generate QR code image from a Token
+    func generateQRCode(for token: Token, size: CGFloat = 512) -> NSImage? {
+        let otpauthURL = token.otpauthURL
+        return generateQRCode(from: otpauthURL, size: size)
+    }
+    
+    /// Generate QR code image from otpauth:// URL string
+    func generateQRCode(from string: String, size: CGFloat = 512) -> NSImage? {
+        guard let data = string.data(using: .utf8) else { return nil }
+        
+        let filter = CIFilter.qrCodeGenerator()
+        filter.message = data
+        filter.correctionLevel = "M"
+        
+        guard let ciImage = filter.outputImage else { return nil }
+        
+        // Scale up the QR code
+        let scale = size / ciImage.extent.width
+        let scaledImage = ciImage.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        
+        // Convert to NSImage
+        let rep = NSCIImageRep(ciImage: scaledImage)
+        let nsImage = NSImage(size: rep.size)
+        nsImage.addRepresentation(rep)
+        
+        return nsImage
+    }
+    
+    /// Save QR code to Downloads folder
+    func saveQRCodeToDownloads(for token: Token) -> Bool {
+        guard let image = generateQRCode(for: token) else {
+            print("[QRCodeService] Failed to generate QR code")
+            return false
+        }
+        
+        // Get Downloads directory
+        guard let downloadsURL = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first else {
+            print("[QRCodeService] Failed to get Downloads directory")
+            return false
+        }
+        
+        // Create filename from token info
+        let safeName = token.displayName
+            .replacingOccurrences(of: "/", with: "-")
+            .replacingOccurrences(of: ":", with: "-")
+            .replacingOccurrences(of: " ", with: "_")
+        let filename = "Keyden_QR_\(safeName).png"
+        let fileURL = downloadsURL.appendingPathComponent(filename)
+        
+        // Convert to PNG data
+        guard let tiffData = image.tiffRepresentation,
+              let bitmap = NSBitmapImageRep(data: tiffData),
+              let pngData = bitmap.representation(using: .png, properties: [:]) else {
+            print("[QRCodeService] Failed to convert image to PNG")
+            return false
+        }
+        
+        // Save to file
+        do {
+            try pngData.write(to: fileURL)
+            print("[QRCodeService] QR code saved to: \(fileURL.path)")
+            
+            // Reveal in Finder
+            NSWorkspace.shared.selectFile(fileURL.path, inFileViewerRootedAtPath: downloadsURL.path)
+            
+            return true
+        } catch {
+            print("[QRCodeService] Failed to save QR code: \(error.localizedDescription)")
+            return false
         }
     }
 }

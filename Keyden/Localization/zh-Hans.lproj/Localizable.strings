@@ -21,6 +21,7 @@
 "pin_to_top" = "置顶";
 "unpin" = "取消置顶";
 "copy_code" = "复制验证码";
+"download_qr_code" = "下载二维码";
 
 // Add Token
 "add_account" = "添加账户";

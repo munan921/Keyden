@@ -71,6 +71,51 @@ struct Token: Identifiable, Codable, Equatable {
         return "Unknown"
     }
     
+    /// Generate otpauth:// URL for this token
+    var otpauthURL: String {
+        var components = URLComponents()
+        components.scheme = "otpauth"
+        components.host = "totp"
+        
+        // Build label path: issuer:account or just account
+        let labelPart: String
+        if !issuer.isEmpty && !account.isEmpty {
+            labelPart = "\(issuer):\(account)"
+        } else if !issuer.isEmpty {
+            labelPart = issuer
+        } else if !account.isEmpty {
+            labelPart = account
+        } else {
+            labelPart = "Unknown"
+        }
+        components.path = "/\(labelPart)"
+        
+        // Query parameters
+        var queryItems: [URLQueryItem] = [
+            URLQueryItem(name: "secret", value: secret)
+        ]
+        
+        if !issuer.isEmpty {
+            queryItems.append(URLQueryItem(name: "issuer", value: issuer))
+        }
+        
+        if digits != 6 {
+            queryItems.append(URLQueryItem(name: "digits", value: String(digits)))
+        }
+        
+        if period != 30 {
+            queryItems.append(URLQueryItem(name: "period", value: String(period)))
+        }
+        
+        if algorithm != .sha1 {
+            queryItems.append(URLQueryItem(name: "algorithm", value: algorithm.rawValue))
+        }
+        
+        components.queryItems = queryItems
+        
+        return components.string ?? "otpauth://totp/Unknown?secret=\(secret)"
+    }
+    
     // Handle migration from old format without isPinned
     enum CodingKeys: String, CodingKey {
         case id, issuer, account, label, secret, digits, period, algorithm, sortOrder, isPinned, updatedAt

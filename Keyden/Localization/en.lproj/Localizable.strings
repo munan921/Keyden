@@ -21,6 +21,7 @@
 "pin_to_top" = "Pin to Top";
 "unpin" = "Unpin";
 "copy_code" = "Copy Code";
+"download_qr_code" = "Download QR Code";
 
 // Add Token
 "add_account" = "Add Account";

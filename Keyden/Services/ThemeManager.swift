@@ -85,92 +85,193 @@ final class ThemeManager: ObservableObject {
 struct ModernTheme {
     let isDark: Bool
     
-    // Backgrounds
+    // MARK: - Backgrounds
+    
+    /// Main background - subtle gradient-ready base
     var background: Color {
         isDark 
-            ? Color(red: 0.11, green: 0.11, blue: 0.12)
-            : Color(red: 0.98, green: 0.98, blue: 0.99)
+            ? Color(red: 0.08, green: 0.08, blue: 0.10)  // Deep charcoal with subtle blue
+            : Color(red: 0.96, green: 0.97, blue: 0.98)  // Soft off-white with cool tint
     }
     
+    /// Card/panel background with depth
     var cardBackground: Color {
         isDark
-            ? Color(red: 0.16, green: 0.16, blue: 0.18)
+            ? Color(red: 0.13, green: 0.13, blue: 0.15)  // Elevated surface
             : Color.white
     }
     
+    /// Hover state for interactive cards
     var cardBackgroundHover: Color {
         isDark
-            ? Color(red: 0.20, green: 0.20, blue: 0.22)
-            : Color(red: 0.96, green: 0.96, blue: 0.97)
+            ? Color(red: 0.17, green: 0.17, blue: 0.20)  // Subtle lift
+            : Color(red: 0.94, green: 0.95, blue: 0.97)  // Gentle press
     }
     
-    // Accent colors
+    /// Secondary surface for nested elements
+    var surfaceSecondary: Color {
+        isDark
+            ? Color(red: 0.10, green: 0.10, blue: 0.12)
+            : Color(red: 0.98, green: 0.98, blue: 0.99)
+    }
+    
+    // MARK: - Accent Colors
+    
+    /// Primary accent - vibrant indigo-blue
     var accent: Color {
-        Color(red: 0.35, green: 0.55, blue: 0.95)  // Modern blue
+        isDark
+            ? Color(red: 0.45, green: 0.55, blue: 1.0)   // Brighter for dark mode visibility
+            : Color(red: 0.30, green: 0.45, blue: 0.90)  // Rich but not overwhelming
     }
     
-    var accentGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                Color(red: 0.35, green: 0.55, blue: 0.95),
-                Color(red: 0.50, green: 0.40, blue: 0.90)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+    /// Accent secondary - for subtle highlights
+    var accentSecondary: Color {
+        isDark
+            ? Color(red: 0.55, green: 0.45, blue: 0.95)  // Purple tint
+            : Color(red: 0.45, green: 0.35, blue: 0.85)
     }
+    
+    /// Primary gradient - modern diagonal flow
+    var accentGradient: LinearGradient {
+        isDark
+            ? LinearGradient(
+                colors: [
+                    Color(red: 0.40, green: 0.50, blue: 1.0),
+                    Color(red: 0.60, green: 0.40, blue: 0.95)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            : LinearGradient(
+                colors: [
+                    Color(red: 0.30, green: 0.50, blue: 0.95),
+                    Color(red: 0.50, green: 0.35, blue: 0.90)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+    }
+    
+    /// Subtle background gradient for visual interest
+    var subtleGradient: LinearGradient {
+        isDark
+            ? LinearGradient(
+                colors: [
+                    Color(red: 0.10, green: 0.10, blue: 0.14),
+                    Color(red: 0.08, green: 0.08, blue: 0.10)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            : LinearGradient(
+                colors: [
+                    Color(red: 0.98, green: 0.98, blue: 1.0),
+                    Color(red: 0.95, green: 0.96, blue: 0.98)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+    }
+    
+    // MARK: - Semantic Colors
     
     var success: Color {
-        Color(red: 0.30, green: 0.75, blue: 0.55)
+        isDark
+            ? Color(red: 0.35, green: 0.85, blue: 0.60)  // Mint green, vivid
+            : Color(red: 0.20, green: 0.70, blue: 0.45)  // Forest green
     }
     
     var warning: Color {
-        Color(red: 0.95, green: 0.65, blue: 0.30)
+        isDark
+            ? Color(red: 1.0, green: 0.75, blue: 0.35)   // Warm amber
+            : Color(red: 0.90, green: 0.60, blue: 0.20)  // Rich orange
     }
     
     var danger: Color {
-        Color(red: 0.90, green: 0.35, blue: 0.40)
+        isDark
+            ? Color(red: 1.0, green: 0.45, blue: 0.50)   // Coral red
+            : Color(red: 0.85, green: 0.30, blue: 0.35)  // Deep rose
     }
     
-    // Text
+    // MARK: - Text Colors
+    
     var textPrimary: Color {
-        isDark ? Color.white : Color(red: 0.12, green: 0.12, blue: 0.14)
+        isDark 
+            ? Color(red: 0.95, green: 0.95, blue: 0.98)  // Soft white, less harsh
+            : Color(red: 0.10, green: 0.10, blue: 0.12)  // Near black with warmth
     }
     
     var textSecondary: Color {
-        isDark ? Color(white: 0.6) : Color(white: 0.45)
+        isDark 
+            ? Color(red: 0.65, green: 0.65, blue: 0.70)  // Cool gray
+            : Color(red: 0.40, green: 0.40, blue: 0.45)  // Balanced gray
     }
     
     var textTertiary: Color {
-        isDark ? Color(white: 0.4) : Color(white: 0.65)
+        isDark 
+            ? Color(red: 0.45, green: 0.45, blue: 0.50)  // Muted
+            : Color(red: 0.60, green: 0.60, blue: 0.65)  // Subtle
     }
     
-    // Borders and separators
+    // MARK: - Borders & Separators
+    
     var border: Color {
-        isDark ? Color(white: 0.2) : Color(white: 0.88)
+        isDark 
+            ? Color(red: 0.22, green: 0.22, blue: 0.26)  // Visible but subtle
+            : Color(red: 0.88, green: 0.88, blue: 0.90)  // Soft edge
     }
     
     var separator: Color {
-        isDark ? Color(white: 0.15) : Color(white: 0.92)
+        isDark 
+            ? Color(red: 0.18, green: 0.18, blue: 0.20)  // Hairline dark
+            : Color(red: 0.92, green: 0.92, blue: 0.94)  // Hairline light
     }
     
-    // Shadows
+    // MARK: - Shadows & Effects
+    
     var cardShadow: Color {
-        isDark ? Color.clear : Color.black.opacity(0.06)
+        isDark 
+            ? Color.black.opacity(0.4)   // Deeper shadow for depth
+            : Color.black.opacity(0.08)  // Subtle elevation
     }
     
-    // Input fields
+    /// Inner glow for selected/focused states
+    var glowColor: Color {
+        accent.opacity(isDark ? 0.3 : 0.2)
+    }
+    
+    // MARK: - Input Fields
+    
     var inputBackground: Color {
         isDark
-            ? Color(red: 0.12, green: 0.12, blue: 0.14)
-            : Color(red: 0.95, green: 0.95, blue: 0.97)
+            ? Color(red: 0.10, green: 0.10, blue: 0.12)  // Inset look
+            : Color(red: 0.94, green: 0.94, blue: 0.96)  // Soft inset
     }
     
-    // Code display
+    var inputBorder: Color {
+        isDark
+            ? Color(red: 0.20, green: 0.20, blue: 0.24)
+            : Color(red: 0.85, green: 0.85, blue: 0.88)
+    }
+    
+    var inputFocusBorder: Color {
+        accent.opacity(0.6)
+    }
+    
+    // MARK: - Code Display
+    
     var codeBackground: Color {
         isDark
-            ? Color(red: 0.14, green: 0.14, blue: 0.16)
-            : Color(red: 0.96, green: 0.97, blue: 0.98)
+            ? Color(red: 0.06, green: 0.06, blue: 0.08)  // Terminal-like
+            : Color(red: 0.96, green: 0.97, blue: 0.98)  // Paper-like
+    }
+    
+    // MARK: - Progress Ring Colors
+    
+    var progressTrack: Color {
+        isDark
+            ? Color(white: 0.20)
+            : Color(white: 0.90)
     }
 }
 

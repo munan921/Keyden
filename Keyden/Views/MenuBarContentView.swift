@@ -120,6 +120,10 @@ struct MenuBarContentView: View {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(theme.inputBackground)
             )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(theme.inputBorder, lineWidth: 1)
+            )
             
             // Add button
             Button(action: { currentView = .addAccount }) {
@@ -129,6 +133,7 @@ struct MenuBarContentView: View {
                     .frame(width: 30, height: 30)
                     .background(theme.accentGradient)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .shadow(color: theme.accent.opacity(0.3), radius: 4, x: 0, y: 2)
             }
             .buttonStyle(.plain)
         }
@@ -166,27 +171,42 @@ struct MenuBarContentView: View {
     
     // MARK: - Empty State
     private var emptyState: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
             Spacer()
             
             ZStack {
+                // Outer glow ring
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [theme.accent.opacity(0.15), theme.accent.opacity(0)],
+                            center: .center,
+                            startRadius: 30,
+                            endRadius: 50
+                        )
+                    )
+                    .frame(width: 100, height: 100)
+                
+                // Inner circle
                 Circle()
                     .fill(theme.accent.opacity(0.1))
                     .frame(width: 70, height: 70)
                 
+                // Icon
                 Image(systemName: searchText.isEmpty ? "key.fill" : "magnifyingglass")
                     .font(.system(size: 28, weight: .medium))
-                    .foregroundColor(theme.accent)
+                    .foregroundStyle(theme.accentGradient)
             }
             
-            VStack(spacing: 6) {
+            VStack(spacing: 8) {
                 Text(searchText.isEmpty ? L10n.noAccounts : L10n.noResults)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(theme.textPrimary)
                 
                 Text(searchText.isEmpty ? L10n.addFirstAccount : L10n.tryDifferentSearch)
                     .font(.system(size: 13))
                     .foregroundColor(theme.textSecondary)
+                    .multilineTextAlignment(.center)
             }
             
             if searchText.isEmpty {
@@ -195,37 +215,28 @@ struct MenuBarContentView: View {
                         Image(systemName: "plus")
                         Text(L10n.addAccount)
                     }
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
                     .background(theme.accentGradient)
                     .clipShape(Capsule())
+                    .shadow(color: theme.accent.opacity(0.3), radius: 8, x: 0, y: 4)
                 }
                 .buttonStyle(.plain)
             }
             
             Spacer()
         }
+        .padding(.horizontal, 20)
     }
     
     // MARK: - Footer
     private var footerBar: some View {
         HStack {
-            Button(action: { currentView = .settings }) {
-                HStack(spacing: 5) {
-                    Image(systemName: "gearshape.fill")
-                        .font(.system(size: 11))
-                    Text(L10n.settings)
-                        .font(.system(size: 11, weight: .medium))
-                }
-                .foregroundColor(theme.textSecondary)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(theme.cardBackground.opacity(0.6))
-                .clipShape(Capsule())
+            FooterIconButton(icon: "gearshape.fill", theme: theme) {
+                currentView = .settings
             }
-            .buttonStyle(.plain)
             
             Spacer()
             
@@ -252,16 +263,9 @@ struct MenuBarContentView: View {
             
             Spacer()
             
-            Button(action: { NSApp.terminate(nil) }) {
-                Text(L10n.quit)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(theme.textSecondary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
-                    .background(theme.cardBackground.opacity(0.6))
-                    .clipShape(Capsule())
+            FooterIconButton(icon: "power", theme: theme) {
+                NSApp.terminate(nil)
             }
-            .buttonStyle(.plain)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
@@ -328,7 +332,8 @@ struct TokenRow: View {
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(theme.textPrimary)
                         .lineLimit(1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .minimumScaleFactor(0.9)
+                        .layoutPriority(1)
                     
                     if token.isPinned {
                         Image(systemName: "pin.fill")
@@ -349,30 +354,39 @@ struct TokenRow: View {
                         .font(.system(size: 10))
                         .foregroundColor(theme.textSecondary)
                         .lineLimit(1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .minimumScaleFactor(0.9)
+                        .layoutPriority(1)
                 }
             }
-            
-            Spacer(minLength: 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .layoutPriority(2)
             
             // Right: Ring progress + Copy icon (fixed size)
             VStack(spacing: 6) {
                 ZStack {
                     Circle()
-                        .stroke(progressColor.opacity(0.15), lineWidth: 2.5)
+                        .stroke(theme.progressTrack, lineWidth: 2.5)
                     Circle()
                         .trim(from: 0, to: progress)
-                        .stroke(progressColor, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+                        .stroke(
+                            progressColor,
+                            style: StrokeStyle(lineWidth: 2.5, lineCap: .round)
+                        )
                         .rotationEffect(.degrees(-90))
                         .animation(.linear(duration: 1), value: remainingSeconds)
+                    
+                    // Time indicator
+                    Text("\(remainingSeconds)")
+                        .font(.system(size: 7, weight: .bold, design: .rounded))
+                        .foregroundColor(progressColor)
                 }
-                .frame(width: 20, height: 20)
+                .frame(width: 22, height: 22)
                 
                 Image(systemName: isCopied ? "checkmark" : "doc.on.doc")
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(isCopied ? theme.success : theme.textTertiary)
             }
-            .frame(width: 24)
+            .frame(width: 26)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
@@ -406,6 +420,10 @@ struct TokenRow: View {
                 Label(L10n.copyCode, systemImage: "doc.on.doc")
             }
             
+            Button(action: downloadQRCode) {
+                Label(L10n.downloadQRCode, systemImage: "qrcode")
+            }
+            
             Divider()
             
             Button(role: .destructive) {
@@ -420,7 +438,7 @@ struct TokenRow: View {
     
     private var serviceIcon: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 5)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(
                     LinearGradient(
                         colors: iconGradientColors,
@@ -428,12 +446,13 @@ struct TokenRow: View {
                         endPoint: .bottomTrailing
                     )
                 )
+                .shadow(color: iconGradientColors[0].opacity(0.4), radius: 3, x: 0, y: 2)
             
             Text(String((token.issuer.isEmpty ? token.displayName : token.issuer).prefix(1)).uppercased())
-                .font(.system(size: 14, weight: .bold))
+                .font(.system(size: 14, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
         }
-        .frame(width: 32, height: 32)
+        .frame(width: 34, height: 34)
         .fixedSize()
     }
     
@@ -441,10 +460,16 @@ struct TokenRow: View {
         let name = token.issuer.isEmpty ? token.displayName : token.issuer
         let hash = abs(name.hashValue)
         let hue1 = Double(hash % 360) / 360.0
-        let hue2 = Double((hash + 30) % 360) / 360.0
+        let hue2 = Double((hash + 40) % 360) / 360.0
+        
+        // Adjust saturation and brightness based on theme
+        let saturation = theme.isDark ? 0.70 : 0.60
+        let brightness1 = theme.isDark ? 0.80 : 0.70
+        let brightness2 = theme.isDark ? 0.65 : 0.55
+        
         return [
-            Color(hue: hue1, saturation: 0.65, brightness: 0.75),
-            Color(hue: hue2, saturation: 0.55, brightness: 0.65)
+            Color(hue: hue1, saturation: saturation, brightness: brightness1),
+            Color(hue: hue2, saturation: saturation * 0.9, brightness: brightness2)
         ]
     }
     
@@ -479,6 +504,10 @@ struct TokenRow: View {
         }
     }
     
+    private func downloadQRCode() {
+        _ = QRCodeService.shared.saveQRCodeToDownloads(for: token)
+    }
+    
     private func startTimer() {
         updateCode()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
@@ -494,6 +523,38 @@ struct TokenRow: View {
     private func updateCode() {
         currentCode = TOTPService.shared.generateCode(for: token) ?? "------"
         remainingSeconds = TOTPService.shared.remainingSeconds(for: token.period)
+    }
+}
+
+// MARK: - Footer Icon Button
+struct FooterIconButton: View {
+    let icon: String
+    let theme: ModernTheme
+    let action: () -> Void
+    
+    @State private var isHovering = false
+    
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(isHovering ? theme.accent : theme.textSecondary)
+                .frame(width: 28, height: 28)
+                .background(
+                    Circle()
+                        .fill(isHovering ? theme.accent.opacity(0.12) : theme.surfaceSecondary)
+                )
+                .overlay(
+                    Circle()
+                        .stroke(isHovering ? theme.accent.opacity(0.3) : Color.clear, lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                isHovering = hovering
+            }
+        }
     }
 }
 

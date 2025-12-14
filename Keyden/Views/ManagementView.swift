@@ -138,13 +138,19 @@ struct ManageRow: View {
                 Text(token.displayName)
                     .font(.system(size: 12, weight: .medium))
                     .lineLimit(1)
+                    .minimumScaleFactor(0.9)
+                    .layoutPriority(1)
                 if !token.account.isEmpty {
                     Text(token.account)
                         .font(.system(size: 10))
                         .foregroundColor(.secondary)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.9)
+                        .layoutPriority(1)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .layoutPriority(1)
             
             Spacer()
             
@@ -303,4 +309,3 @@ struct EditField: View {
         }
     }
 }
-
