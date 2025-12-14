@@ -273,10 +273,10 @@ struct GeneralTabContent: View {
                     // App info
                     HStack {
                         HStack(spacing: 8) {
-                            Image(systemName: "app.fill")
-                                .font(.system(size: 13))
-                                .foregroundColor(theme.accent)
-                                .frame(width: 16)
+                            Image(nsImage: NSApp.applicationIconImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 20, height: 20)
                             Text("Keyden")
                                 .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(theme.textPrimary)
@@ -332,8 +332,8 @@ struct GeneralTabContent: View {
         if let url = URL(string: "https://github.com/tasselx/Keyden") {
             NSWorkspace.shared.open(url)
         }
-        // Close the menu
-        NSApp.keyWindow?.close()
+        // Close the menu panel
+        MenuBarController.shared?.hidePanel()
     }
     
     // MARK: - Launch at Login Helpers
@@ -655,6 +655,8 @@ struct SyncTabContent: View {
         if let url = URL(string: "https://gist.github.com/\(gistId)") {
             NSWorkspace.shared.open(url)
         }
+        // Close the menu panel
+        MenuBarController.shared?.hidePanel()
     }
 }
 
@@ -1055,6 +1057,8 @@ struct TokenInputSheet: View {
         if let url = URL(string: "https://github.com/settings/tokens/new?scopes=gist&description=Keyden") {
             NSWorkspace.shared.open(url)
         }
+        // Close the menu panel
+        MenuBarController.shared?.hidePanel()
     }
 }
 
