@@ -211,7 +211,7 @@ struct MenuBarContentView: View {
     
     // MARK: - Token List
     private var tokenList: some View {
-        ScrollView {
+        ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(spacing: 6) {
                 ForEach(filteredTokens) { token in
                     TokenRow(
@@ -363,6 +363,7 @@ struct TokenRow: View {
     @State private var remainingSeconds = 30
     @State private var timer: Timer?
     @State private var isHovering = false
+    @State private var isPressed = false
     @State private var isInitialized = false
     
     private var isCopied: Bool { copiedId == token.id }
@@ -419,6 +420,7 @@ struct TokenRow: View {
                 Text(formatCode(currentCode))
                     .font(.system(size: 18, weight: .bold, design: .monospaced))
                     .foregroundColor(isCopied ? theme.success : theme.textPrimary)
+                    .animation(.easeInOut(duration: 0.2), value: isCopied)
                 
                 // Account
                 if !displayAccount.isEmpty {
@@ -455,6 +457,8 @@ struct TokenRow: View {
                 Image(systemName: isCopied ? "checkmark" : "doc.on.doc")
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(isCopied ? theme.success : theme.textTertiary)
+                    .scaleEffect(isCopied ? 1.1 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isCopied)
             }
             .frame(width: 26)
         }
@@ -472,10 +476,22 @@ struct TokenRow: View {
                     lineWidth: 1
                 )
         )
+        .scaleEffect(isPressed ? 0.98 : 1.0)
+        .opacity(isPressed ? 0.9 : 1.0)
+        .animation(.easeInOut(duration: 0.1), value: isPressed)
         .contentShape(Rectangle())
-        .onTapGesture {
-            copyCode()
-        }
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !isPressed {
+                        isPressed = true
+                    }
+                }
+                .onEnded { _ in
+                    isPressed = false
+                    copyCode()
+                }
+        )
         .onHover { hovering in
             withAnimation(.easeInOut(duration: 0.15)) {
                 isHovering = hovering
@@ -553,7 +569,7 @@ struct TokenRow: View {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(currentCode, forType: .string)
         
-        withAnimation(.easeOut(duration: 0.2)) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
             copiedId = token.id
         }
         
@@ -562,7 +578,9 @@ struct TokenRow: View {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             if copiedId == token.id {
-                withAnimation { copiedId = nil }
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    copiedId = nil
+                }
             }
         }
         

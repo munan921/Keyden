@@ -85,7 +85,7 @@ struct ManagementView: View {
                     Spacer()
                 }
             } else {
-                ScrollView {
+                ScrollView(.vertical, showsIndicators: false) {
                     LazyVStack(spacing: 2) {
                         ForEach(filteredTokens) { token in
                             ManageRow(

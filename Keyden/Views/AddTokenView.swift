@@ -134,7 +134,7 @@ struct AddTokenView: View {
     
     // MARK: - Input View
     private var inputView: some View {
-        ScrollView {
+        ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 16) {
                 // Icon
                 ZStack {

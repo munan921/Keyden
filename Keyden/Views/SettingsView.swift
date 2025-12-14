@@ -66,7 +66,7 @@ struct SettingsView: View {
             .id(languageManager.languageMode) // Force refresh on language change
             
             // Content
-            ScrollView {
+            ScrollView(.vertical, showsIndicators: false) {
                 if selectedTab == 0 {
                     GeneralTabContent(theme: theme)
                 } else if selectedTab == 1 {
