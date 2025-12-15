@@ -54,6 +54,28 @@
 3. 点击验证码即可复制到剪贴板
 4. 右键点击可查看更多选项（置顶、删除、导出二维码）
 
+### 快速开始 - 主流平台两步验证设置
+
+点击下方链接可直接跳转至对应平台的两步验证设置页面：
+
+| 平台 | 两步验证设置链接 |
+|------|------------------|
+| 🔵 Google | [安全设置](https://myaccount.google.com/signinoptions/two-step-verification) |
+| 🐙 GitHub | [两步验证](https://github.com/settings/two_factor_authentication/setup/intro) |
+| 🟦 微软 | [安全选项](https://account.live.com/proofs/manage/additional) |
+| 🍎 Apple | [账户安全](https://appleid.apple.com/account/manage) |
+| 🟠 亚马逊 | [两步验证](https://www.amazon.com/a/settings/approval) |
+| 📘 Facebook | [安全设置](https://www.facebook.com/settings?tab=security) |
+| 🐦 X (Twitter) | [账户安全](https://twitter.com/settings/account/login_verification) |
+| 🎮 Discord | [账户设置](https://discord.com/channels/@me) → 用户设置 → 我的账户 |
+| 📦 Dropbox | [安全设置](https://www.dropbox.com/account/security) |
+| 💼 领英 | [两步验证](https://www.linkedin.com/psettings/two-step-verification) |
+| ☁️ 阿里云 | [安全设置](https://account.console.aliyun.com/#/secure) |
+| ☁️ 腾讯云 | [安全设置](https://console.cloud.tencent.com/developer/security) |
+| ☁️ AWS | [IAM 安全](https://console.aws.amazon.com/iam/home#/security_credentials) |
+| 🔷 Cloudflare | [账户安全](https://dash.cloudflare.com/profile/authentication) |
+| 📧 ProtonMail | [账户设置](https://account.proton.me/u/0/mail/account-password) |
+
 ### GitHub Gist 同步
 
 1. 进入设置 → 同步

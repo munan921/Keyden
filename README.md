@@ -54,6 +54,27 @@ Open the DMG and drag Keyden to Applications.
 3. Click any code to copy to clipboard
 4. Right-click for more options (pin, delete, export QR)
 
+### Quick Start - Enable 2FA on Popular Platforms
+
+Click the links below to directly access 2FA settings:
+
+| Platform | 2FA Settings Link |
+|----------|-------------------|
+| 🔵 Google | [Security Settings](https://myaccount.google.com/signinoptions/two-step-verification) |
+| 🐙 GitHub | [Two-Factor Authentication](https://github.com/settings/two_factor_authentication/setup/intro) |
+| 🟦 Microsoft | [Security Options](https://account.live.com/proofs/manage/additional) |
+| 🍎 Apple | [Account Security](https://appleid.apple.com/account/manage) |
+| 🟠 Amazon | [Two-Step Verification](https://www.amazon.com/a/settings/approval) |
+| 📘 Facebook | [Security Settings](https://www.facebook.com/settings?tab=security) |
+| 🐦 X (Twitter) | [Account Security](https://twitter.com/settings/account/login_verification) |
+| 🎮 Discord | [Account Settings](https://discord.com/channels/@me) → User Settings → My Account |
+| 📦 Dropbox | [Security Settings](https://www.dropbox.com/account/security) |
+| 💼 LinkedIn | [Two-Step Verification](https://www.linkedin.com/psettings/two-step-verification) |
+| ☁️ AWS | [IAM Security](https://console.aws.amazon.com/iam/home#/security_credentials) |
+| 🔷 Cloudflare | [Account Security](https://dash.cloudflare.com/profile/authentication) |
+| 📧 ProtonMail | [Account Settings](https://account.proton.me/u/0/mail/account-password) |
+| 🎵 Spotify | [Account Security](https://www.spotify.com/account/security/) |
+
 ### GitHub Gist Sync
 
 1. Go to Settings → Sync
