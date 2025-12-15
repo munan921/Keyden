@@ -130,3 +130,9 @@
 "save_backup_message" = "Choose where to save your backup";
 "open_in_browser" = "Open in browser";
 
+// Update
+"check_update" = "Check for Updates";
+"new_version_available" = "New version available";
+"up_to_date" = "You're up to date";
+"checking_update" = "Checking...";
+

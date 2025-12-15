@@ -130,3 +130,9 @@
 "save_backup_message" = "选择保存备份的位置";
 "open_in_browser" = "在浏览器中打开";
 
+// Update
+"check_update" = "检查更新";
+"new_version_available" = "有新版本可用";
+"up_to_date" = "已是最新版本";
+"checking_update" = "正在检查...";
+

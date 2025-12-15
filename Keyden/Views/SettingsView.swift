@@ -178,7 +178,7 @@ struct GeneralTabContent: View {
     let theme: ModernTheme
     @StateObject private var themeManager = ThemeManager.shared
     @StateObject private var languageManager = LanguageManager.shared
-    @StateObject private var vaultService = VaultService.shared
+    @StateObject private var updateService = UpdateService.shared
     @State private var launchAtLogin = false
     
     private func themeDisplayName(_ mode: ThemeMode) -> String {
@@ -191,14 +191,14 @@ struct GeneralTabContent: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // Appearance section - Theme & Language combined
+            // Appearance section - Theme & Language
             SettingsCard(title: L10n.appearance, icon: "paintbrush.fill", theme: theme) {
                 VStack(spacing: 14) {
                     // Theme row
                     HStack {
                         HStack(spacing: 8) {
                             Image(systemName: themeManager.mode.icon)
-                                .font(.system(size: 13))
+                                .font(.system(size: 12))
                                 .foregroundColor(theme.accent)
                                 .frame(width: 16)
                             Text(L10n.theme)
@@ -223,7 +223,7 @@ struct GeneralTabContent: View {
                     HStack {
                         HStack(spacing: 8) {
                             Image(systemName: "globe")
-                                .font(.system(size: 13))
+                                .font(.system(size: 12))
                                 .foregroundColor(theme.accent)
                                 .frame(width: 16)
                             Text(L10n.language)
@@ -243,13 +243,12 @@ struct GeneralTabContent: View {
                 }
             }
             
-            // Preferences section
+            // General section - Launch at login
             SettingsCard(title: L10n.general, icon: "gearshape.fill", theme: theme) {
-                // Launch at login
                 Toggle(isOn: $launchAtLogin) {
                     HStack(spacing: 8) {
                         Image(systemName: "power")
-                            .font(.system(size: 13))
+                            .font(.system(size: 12))
                             .foregroundColor(theme.accent)
                             .frame(width: 16)
                         Text(L10n.launchAtLogin)
@@ -267,44 +266,88 @@ struct GeneralTabContent: View {
                 launchAtLogin = getLaunchAtLogin()
             }
             
-            // Stats & About combined
+            // About section
             SettingsCard(title: L10n.about, icon: "info.circle.fill", theme: theme) {
                 VStack(spacing: 14) {
-                    // App info
+                    // App info row
                     HStack {
-                        HStack(spacing: 8) {
+                        HStack(spacing: 10) {
                             Image(nsImage: NSApp.applicationIconImage)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: 20, height: 20)
-                            Text("Keyden")
-                                .font(.system(size: 13, weight: .medium))
+                                .frame(width: 36, height: 36)
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Keyden")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(theme.textPrimary)
+                                Text("v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")")
+                                    .font(.system(size: 11, design: .monospaced))
+                                    .foregroundColor(theme.textTertiary)
+                            }
+                        }
+                        
+                        Spacer()
+                    }
+                    
+                    Divider()
+                        .background(theme.separator)
+                    
+                    // Check for updates row
+                    HStack {
+                        HStack(spacing: 8) {
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                                .font(.system(size: 12))
+                                .foregroundColor(theme.accent)
+                                .frame(width: 16)
+                            Text(L10n.checkUpdate)
+                                .font(.system(size: 13))
                                 .foregroundColor(theme.textPrimary)
                         }
+                        
                         Spacer()
                         
-                        Text("v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")")
-                            .font(.system(size: 11, weight: .medium, design: .monospaced))
-                            .foregroundColor(theme.textTertiary)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(theme.inputBackground)
-                            .cornerRadius(4)
-                        
-                        // GitHub link
-                        Button(action: openGitHub) {
-                            Image("GitHubLogo")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 18, height: 18)
-                                .colorInvert(theme.isDark)
-                        }
-                        .buttonStyle(.plain)
-                        .onHover { hovering in
-                            if hovering {
-                                NSCursor.pointingHand.push()
-                            } else {
-                                NSCursor.pop()
+                        // Status indicator with action
+                        if updateService.isChecking {
+                            HStack(spacing: 4) {
+                                ProgressView()
+                                    .scaleEffect(0.5)
+                                    .frame(width: 12, height: 12)
+                                Text(L10n.checkingUpdate)
+                                    .font(.system(size: 11))
+                                    .foregroundColor(theme.textSecondary)
+                            }
+                        } else if updateService.hasUpdate, let version = updateService.latestVersion {
+                            Button(action: { updateService.openReleasesPage() }) {
+                                HStack(spacing: 5) {
+                                    Circle()
+                                        .fill(theme.danger)
+                                        .frame(width: 6, height: 6)
+                                    Text("v\(version)")
+                                        .font(.system(size: 11, weight: .medium))
+                                    Image(systemName: "arrow.up.right.square")
+                                        .font(.system(size: 10))
+                                }
+                                .foregroundColor(theme.accent)
+                            }
+                            .buttonStyle(.plain)
+                            .onHover { hovering in
+                                if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+                            }
+                        } else {
+                            Button(action: { checkForUpdates() }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(theme.success)
+                                    Text(L10n.upToDate)
+                                        .font(.system(size: 11))
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .onHover { hovering in
+                                if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
                             }
                         }
                     }
@@ -312,20 +355,43 @@ struct GeneralTabContent: View {
                     Divider()
                         .background(theme.separator)
                     
-                    // Stats row
-                    HStack(spacing: 0) {
-                        StatItem(label: L10n.accounts, value: "\(vaultService.vault.tokens.count)", icon: "key.fill", theme: theme)
+                    // GitHub row
+                    HStack {
+                        HStack(spacing: 8) {
+                            Image("GitHubLogo")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 14, height: 14)
+                                .colorInvert(theme.isDark)
+                            Text("GitHub")
+                                .font(.system(size: 13))
+                                .foregroundColor(theme.textPrimary)
+                        }
                         
-                        Rectangle()
-                            .fill(theme.separator)
-                            .frame(width: 1, height: 28)
+                        Spacer()
                         
-                        StatItem(label: L10n.pinned, value: "\(vaultService.vault.tokens.filter { $0.isPinned }.count)", icon: "pin.fill", theme: theme)
+                        Button(action: openGitHub) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.up.right.square")
+                                    .font(.system(size: 11))
+                            }
+                            .foregroundColor(theme.accent)
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { hovering in
+                            if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+                        }
                     }
                 }
             }
         }
         .padding(16)
+    }
+    
+    private func checkForUpdates() {
+        Task {
+            await updateService.checkForUpdates()
+        }
     }
     
     private func openGitHub() {
@@ -612,6 +678,8 @@ struct SyncTabContent: View {
                     gistService.setToken(token)
                     showTokenInput = false
                     message = (L10n.tokenSaved, false)
+                    // Immediately sync after adding token
+                    push()
                 } else {
                     message = ("Invalid token. Check your token and try again.", true)
                 }

@@ -23,6 +23,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Hide dock icon
         NSApp.setActivationPolicy(.accessory)
+        
+        // Check for updates on launch
+        UpdateService.shared.checkForUpdatesOnLaunch()
     }
     
     func applicationWillTerminate(_ notification: Notification) {

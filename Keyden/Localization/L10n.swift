@@ -189,7 +189,13 @@ class LanguageManager: ObservableObject {
         "import_confirm_message": "This will merge imported accounts with your existing accounts. Continue?",
         "import_success": "Imported successfully",
         "security_warning": "Exported files contain unencrypted secret keys. Keep them secure!",
-        "unencrypted_json": "Unencrypted JSON format"
+        "unencrypted_json": "Unencrypted JSON format",
+        
+        // Update
+        "check_update": "Check for Updates",
+        "new_version_available": "New version available",
+        "up_to_date": "You're up to date",
+        "checking_update": "Checking..."
     ]
 }
 
@@ -332,6 +338,12 @@ enum L10n {
     static var issuer: String { manager.localizedString(forKey: "issuer") }
     static var saveBackupMessage: String { manager.localizedString(forKey: "save_backup_message") }
     static var openInBrowser: String { manager.localizedString(forKey: "open_in_browser") }
+    
+    // MARK: - Update
+    static var checkUpdate: String { manager.localizedString(forKey: "check_update") }
+    static var newVersionAvailable: String { manager.localizedString(forKey: "new_version_available") }
+    static var upToDate: String { manager.localizedString(forKey: "up_to_date") }
+    static var checkingUpdate: String { manager.localizedString(forKey: "checking_update") }
 }
 
 // MARK: - RawRepresentable for AppStorage

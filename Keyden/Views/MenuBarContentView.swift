@@ -79,6 +79,7 @@ struct MenuBarContentView: View {
     @StateObject private var gistService = GistSyncService.shared
     @StateObject private var themeManager = ThemeManager.shared
     @StateObject private var toastManager = ToastManager.shared
+    @StateObject private var updateService = UpdateService.shared
     
     @State private var searchText = ""
     @State private var copiedTokenId: UUID?
@@ -302,7 +303,7 @@ struct MenuBarContentView: View {
     // MARK: - Footer
     private var footerBar: some View {
         HStack {
-            FooterIconButton(icon: "gearshape.fill", theme: theme) {
+            FooterIconButton(icon: "gearshape.fill", theme: theme, showBadge: updateService.hasUpdate) {
                 currentView = .settings
             }
             
@@ -619,24 +620,35 @@ struct TokenRow: View {
 struct FooterIconButton: View {
     let icon: String
     let theme: ModernTheme
+    var showBadge: Bool = false
     let action: () -> Void
     
     @State private var isHovering = false
     
     var body: some View {
         Button(action: action) {
-            Image(systemName: icon)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(isHovering ? theme.accent : theme.textSecondary)
-                .frame(width: 28, height: 28)
-                .background(
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: icon)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(isHovering ? theme.accent : theme.textSecondary)
+                    .frame(width: 28, height: 28)
+                    .background(
+                        Circle()
+                            .fill(isHovering ? theme.accent.opacity(0.12) : theme.surfaceSecondary)
+                    )
+                    .overlay(
+                        Circle()
+                            .stroke(isHovering ? theme.accent.opacity(0.3) : Color.clear, lineWidth: 1)
+                    )
+                
+                // Red dot badge for updates
+                if showBadge {
                     Circle()
-                        .fill(isHovering ? theme.accent.opacity(0.12) : theme.surfaceSecondary)
-                )
-                .overlay(
-                    Circle()
-                        .stroke(isHovering ? theme.accent.opacity(0.3) : Color.clear, lineWidth: 1)
-                )
+                        .fill(theme.danger)
+                        .frame(width: 8, height: 8)
+                        .offset(x: 2, y: -2)
+                }
+            }
         }
         .buttonStyle(.plain)
         .onHover { hovering in
