@@ -29,18 +29,6 @@
 - 🔄 **导入/导出** - 轻松备份和恢复令牌
 - 🚀 **开机启动** - 支持随 Mac 自动启动
 
-## 安装
-
-从 [Releases](https://github.com/tasselx/Keyden/releases) 下载最新 DMG：
-
-| 文件 | 架构 | 说明 |
-|------|------|------|
-| `Keyden-x.x.x-universal.dmg` | 通用版 | 推荐（Intel + Apple Silicon） |
-| `Keyden-x.x.x-arm64.dmg` | Apple Silicon | 适用于 M1/M2/M3 Mac |
-| `Keyden-x.x.x-x86_64.dmg` | Intel | 适用于 Intel Mac |
-
-打开 DMG，将 Keyden 拖入「应用程序」文件夹。
-
 ## 快速开始 - 主流平台两步验证设置
 
 点击下方链接可直接跳转至对应平台的两步验证设置页面：
@@ -62,6 +50,12 @@
 | ☁️ AWS | [IAM 安全](https://console.aws.amazon.com/iam/home#/security_credentials) |
 | 🔷 Cloudflare | [账户安全](https://dash.cloudflare.com/profile/authentication) |
 | 📧 ProtonMail | [账户设置](https://account.proton.me/u/0/mail/account-password) |
+
+## 安装
+
+从 [Releases](https://github.com/tasselx/Keyden/releases) 下载最新 DMG：
+打开 DMG，将 Keyden 拖入「应用程序」文件夹。
+
 
 ## 使用
 

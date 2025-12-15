@@ -29,18 +29,6 @@ A clean and elegant macOS menu bar TOTP authenticator.
 - 🔄 **Import/Export** - Backup and restore your tokens easily
 - 🚀 **Launch at Login** - Start automatically with your Mac
 
-## Installation
-
-Download the latest DMG from [Releases](https://github.com/tasselx/Keyden/releases):
-
-| File | Architecture | Description |
-|------|--------------|-------------|
-| `Keyden-x.x.x-universal.dmg` | Universal | Recommended (Intel + Apple Silicon) |
-| `Keyden-x.x.x-arm64.dmg` | Apple Silicon | For M1/M2/M3 Macs |
-| `Keyden-x.x.x-x86_64.dmg` | Intel | For Intel Macs |
-
-Open the DMG and drag Keyden to Applications.
-
 ## Quick Start - Enable 2FA on Popular Platforms
 
 Click the links below to directly access 2FA settings:
@@ -61,6 +49,12 @@ Click the links below to directly access 2FA settings:
 | 🔷 Cloudflare | [Account Security](https://dash.cloudflare.com/profile/authentication) |
 | 📧 ProtonMail | [Account Settings](https://account.proton.me/u/0/mail/account-password) |
 | 🎵 Spotify | [Account Security](https://www.spotify.com/account/security/) |
+
+## Installation
+
+Download the latest DMG from [Releases](https://github.com/tasselx/Keyden/releases):
+Open the DMG and drag Keyden to Applications.
+
 
 ## Usage
 
