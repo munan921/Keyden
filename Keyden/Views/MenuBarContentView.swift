@@ -629,6 +629,10 @@ struct TokenRow: View {
                 Label(L10n.copyCode, systemImage: "doc.on.doc")
             }
             
+            Button(action: copyOtpauth) {
+                Label(L10n.copyOtpauth, systemImage: "link")
+            }
+            
             Button(action: downloadQRCode) {
                 Label(L10n.downloadQRCode, systemImage: "qrcode")
             }
@@ -706,6 +710,12 @@ struct TokenRow: View {
                 }
             }
         }
+    }
+    
+    private func copyOtpauth() {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(token.otpauthURL, forType: .string)
+        ToastManager.shared.show(L10n.copied)
     }
     
     private func downloadQRCode() {

@@ -97,6 +97,7 @@ class LanguageManager: ObservableObject {
         "pin_to_top": "Pin to Top",
         "unpin": "Unpin",
         "copy_code": "Copy Code",
+        "copy_otpauth": "Copy otpauth URL",
         "download_qr_code": "Download QR Code",
         
         // Add Token
@@ -243,6 +244,7 @@ enum L10n {
     static var pinToTop: String { manager.localizedString(forKey: "pin_to_top") }
     static var unpin: String { manager.localizedString(forKey: "unpin") }
     static var copyCode: String { manager.localizedString(forKey: "copy_code") }
+    static var copyOtpauth: String { manager.localizedString(forKey: "copy_otpauth") }
     static var downloadQRCode: String { manager.localizedString(forKey: "download_qr_code") }
     
     // MARK: - Add Token
