@@ -121,11 +121,6 @@ If you find Keyden helpful, consider buying me a coffee ☕
 
 [![Star History Chart](https://api.star-history.com/svg?repos=tasselx/Keyden&type=date&legend=top-left)](https://www.star-history.com/#tasselx/Keyden&type=date&legend=top-left)
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=tasselx/Keyden&type=Date&theme=dark" />
-  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=tasselx/Keyden&type=Date" />
-  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=tasselx/Keyden&type=Date" />
-</picture>
 
 ## License
 
