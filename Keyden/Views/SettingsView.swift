@@ -393,15 +393,21 @@ struct GeneralTabContent: View {
                     
                     // GitHub row
                     HStack {
-                        HStack(spacing: 8) {
-                            Image("GitHubLogo")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 14, height: 14)
-                                .colorInvert(theme.isDark)
-                            Text("GitHub")
-                                .font(.system(size: 13))
-                                .foregroundColor(theme.textPrimary)
+                        Button(action: openGitHub) {
+                            HStack(spacing: 8) {
+                                Image("GitHubLogo")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 14, height: 14)
+                                    .colorInvert(theme.isDark)
+                                Text("GitHub")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(theme.textPrimary)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { hovering in
+                            if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
                         }
                         
                         Spacer()
