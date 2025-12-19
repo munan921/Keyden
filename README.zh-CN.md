@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/AppIcon.png" width="128" alt="Keyden" />
+</p>
+
 # Keyden
 
 [English](README.md)
@@ -78,9 +82,15 @@
 
 ## 安装
 
-从 [Releases](https://github.com/tasselx/Keyden/releases) 下载最新 DMG：
+### Homebrew
 
-打开 DMG，将 Keyden 拖入「应用程序」文件夹。
+```bash
+brew install --cask tasselx/tap/keyden
+```
+
+### 手动下载
+
+从 [Releases](https://github.com/tasselx/Keyden/releases) 下载最新 DMG
 
 
 ## 使用

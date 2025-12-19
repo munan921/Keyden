@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/AppIcon.png" width="128" alt="Keyden" />
+</p>
+
 # Keyden
 
 [中文](README.zh-CN.md)
@@ -76,9 +80,15 @@ Click the links below to directly access 2FA settings:
 
 ## Installation
 
-Download the latest DMG from [Releases](https://github.com/tasselx/Keyden/releases):
+### Homebrew
 
-Open the DMG and drag Keyden to Applications.
+```bash
+brew install --cask tasselx/tap/keyden
+```
+
+### Manual Download
+
+Download the latest DMG from [Releases](https://github.com/tasselx/Keyden/releases)
 
 
 ## Usage
