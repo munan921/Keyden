@@ -43,6 +43,7 @@
 | � | ***置顶与排序** - 置顶常用账户，拖拽调整顺序 |
 | 📂 | **分组视图** - 按发行商分组显示账户，方便管理 |
 | ⌨️ | **全局快捷键** - 自定义快捷键快速打开菜单（默认：⌘⇧K） |
+| 🖥️ | **命令行工具** - 支持脚本和自动化调用 |
 | 🔄 | **导入/导出** - 轻松备份和恢复令牌 |
 | 🚀 | **开机启动** - 支持随 Mac 自动启动 |
 
@@ -89,6 +90,35 @@ brew install --cask tasselx/tap/keyden
 2. 点击「+」添加 TOTP 账户（扫描二维码或手动输入）
 3. 点击验证码即可复制到剪贴板
 4. 右键点击可查看更多选项（置顶、删除、导出二维码）
+
+### 命令行工具 (CLI)
+
+Keyden 内置命令行工具，支持脚本和自动化操作。
+
+**安装方式：**
+
+- **一键安装**：右键点击任意账户 → "复制 CLI 命令" → 如未安装会提示一键安装
+- **设置安装**：设置 → 通用 → CLI 工具 → 安装
+- **手动安装**：CLI 内置于应用中，路径为 `Keyden.app/Contents/Resources/CLI/keyden`
+
+```bash
+# 使用方法
+keyden get GitHub                    # 获取 GitHub 的验证码
+keyden get GitHub:user@example.com   # 指定账户（issuer:account 格式）
+keyden get GitHub user@example.com   # 同上（空格分隔）
+keyden list                          # 列出所有账户及验证码
+keyden search google                 # 搜索账户
+keyden help                          # 显示帮助
+
+# 在脚本中使用
+CODE=$(keyden get GitHub)
+echo "验证码是: $CODE"
+
+# 自动填写示例（复制到剪贴板）
+keyden get GitHub | pbcopy
+```
+
+> 💡 **提示**：当同一发行商下有多个账户时（如多个 GitHub 账户），使用 `issuer:account` 格式指定具体账户。
 
 ### GitHub Gist 同步
 

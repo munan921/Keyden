@@ -11,6 +11,7 @@ import AppKit
 /// Notification to show the panel
 extension Notification.Name {
     static let showMenuBarPanel = Notification.Name("showMenuBarPanel")
+    static let showCLIInstallPrompt = Notification.Name("showCLIInstallPrompt")
 }
 
 /// Custom panel that can become key window to accept keyboard input

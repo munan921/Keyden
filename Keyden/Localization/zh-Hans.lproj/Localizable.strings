@@ -22,6 +22,15 @@
 "unpin" = "取消置顶";
 "copy_code" = "复制验证码";
 "copy_otpauth" = "复制 otpauth 链接";
+"copy_cli_command" = "复制 CLI 命令";
+"cli_not_installed" = "CLI 未安装";
+"cli_install_message" = "keyden 命令行工具尚未安装。是否安装到 /usr/local/bin？";
+"cli_installed" = "CLI 安装成功";
+"cli_uninstalled" = "CLI 已卸载";
+"cli_tool" = "命令行工具";
+"cli_not_installed_short" = "未安装";
+"uninstall" = "卸载";
+"install" = "安装";
 "download_qr_code" = "下载二维码";
 
 // Add Token

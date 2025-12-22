@@ -296,6 +296,12 @@ struct GeneralTabContent: View {
                             .controlSize(.small)
                             .labelsHidden()
                     }
+                    
+                    Divider()
+                        .background(theme.separator)
+                    
+                    // CLI row
+                    CLISettingsRow(theme: theme)
                 }
             }
             .onAppear {
@@ -1376,5 +1382,84 @@ struct GistInputSheet: View {
         .padding(20)
         .frame(width: 280)
         .background(theme.background)
+    }
+}
+
+// MARK: - CLI Settings Row
+struct CLISettingsRow: View {
+    let theme: ModernTheme
+    
+    @State private var isInstalled = CLIService.shared.isInstalled
+    @State private var isProcessing = false
+    
+    var body: some View {
+        HStack {
+            HStack(spacing: 8) {
+                Image(systemName: "terminal")
+                    .font(.system(size: 12))
+                    .foregroundColor(theme.accent)
+                    .frame(width: 16)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.cliTool)
+                        .font(.system(size: 13))
+                        .foregroundColor(theme.textPrimary)
+                    Text(isInstalled ? "/usr/local/bin/keyden" : L10n.cliNotInstalledShort)
+                        .font(.system(size: 10))
+                        .foregroundColor(isInstalled ? theme.success : theme.textTertiary)
+                }
+            }
+            
+            Spacer()
+            
+            if isProcessing {
+                ProgressView()
+                    .scaleEffect(0.6)
+                    .frame(width: 60)
+            } else {
+                Button(isInstalled ? L10n.uninstall : L10n.install) {
+                    if isInstalled {
+                        uninstallCLI()
+                    } else {
+                        installCLI()
+                    }
+                }
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.white)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(isInstalled ? theme.danger : theme.accent)
+                .cornerRadius(4)
+                .contentShape(Rectangle())
+                .buttonStyle(.plain)
+            }
+        }
+    }
+    
+    private func installCLI() {
+        isProcessing = true
+        CLIService.shared.installCLI { result in
+            isProcessing = false
+            switch result {
+            case .success:
+                isInstalled = true
+                ToastManager.shared.show(L10n.cliInstalled, icon: "checkmark.circle.fill")
+            case .failure(let error):
+                ToastManager.shared.show(error.localizedDescription, icon: "xmark.circle.fill")
+            }
+        }
+    }
+    
+    private func uninstallCLI() {
+        isProcessing = true
+        CLIService.shared.uninstallCLI { result in
+            isProcessing = false
+            switch result {
+            case .success:
+                isInstalled = false
+                ToastManager.shared.show(L10n.cliUninstalled, icon: "checkmark.circle.fill")
+            case .failure(let error):
+                ToastManager.shared.show(error.localizedDescription, icon: "xmark.circle.fill")
+            }
+        }
     }
 }

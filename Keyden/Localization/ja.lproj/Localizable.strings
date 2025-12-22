@@ -22,6 +22,15 @@
 "unpin" = "ピン留め解除";
 "copy_code" = "コードをコピー";
 "copy_otpauth" = "otpauth リンクをコピー";
+"copy_cli_command" = "CLI コマンドをコピー";
+"cli_not_installed" = "CLI 未インストール";
+"cli_install_message" = "keyden CLI ツールがインストールされていません。/usr/local/bin にインストールしますか？";
+"cli_installed" = "CLI のインストールが完了しました";
+"cli_uninstalled" = "CLI をアンインストールしました";
+"cli_tool" = "CLI ツール";
+"cli_not_installed_short" = "未インストール";
+"uninstall" = "アンインストール";
+"install" = "インストール";
 "download_qr_code" = "QR コードをダウンロード";
 
 // Add Token

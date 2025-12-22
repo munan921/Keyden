@@ -22,6 +22,9 @@ DMG_BACKGROUND_COLOR = \#FFFFFF
 .PHONY: all
 all: dmg
 
+# CLI 构建目录
+CLI_BUILD_DIR = $(BUILD_DIR)/cli
+
 # 更新网页版本号
 .PHONY: update-docs-version
 update-docs-version:
@@ -47,10 +50,31 @@ $(BUILD_DIR):
 $(DIST_DIR):
 	mkdir -p $(DIST_DIR)
 
+# 构建 CLI 工具 (Universal)
+.PHONY: build-cli
+build-cli: $(BUILD_DIR)
+	@echo "🔨 构建 CLI 工具 (Universal)..."
+	@mkdir -p $(CLI_BUILD_DIR)
+	swiftc -O \
+		-target arm64-apple-macosx12.0 \
+		-o "$(CLI_BUILD_DIR)/keyden-arm64" \
+		KeydenCLI/main.swift
+	swiftc -O \
+		-target x86_64-apple-macosx12.0 \
+		-o "$(CLI_BUILD_DIR)/keyden-x86_64" \
+		KeydenCLI/main.swift
+	@echo "📦 创建 Universal 二进制..."
+	lipo -create \
+		"$(CLI_BUILD_DIR)/keyden-arm64" \
+		"$(CLI_BUILD_DIR)/keyden-x86_64" \
+		-output "$(BUILD_DIR)/keyden"
+	@rm -f "$(CLI_BUILD_DIR)/keyden-arm64" "$(CLI_BUILD_DIR)/keyden-x86_64"
+	@echo "✅ CLI 构建完成: $(BUILD_DIR)/keyden"
+
 # 构建通用版本 (Universal - arm64 + x86_64)
 .PHONY: build build-universal
 build: build-universal
-build-universal: $(BUILD_DIR) update-docs-version
+build-universal: $(BUILD_DIR) update-docs-version build-cli
 	@echo "🔨 构建通用版本 (Universal)..."
 	xcodebuild -project $(PROJECT_NAME).xcodeproj \
 		-scheme $(SCHEME) \
@@ -78,6 +102,9 @@ build-universal: $(BUILD_DIR) update-docs-version
 	@echo "🔏 签名应用..."
 	@codesign --force --deep --sign - "$(BUILD_DIR)/$(PROJECT_NAME)-universal.app"
 	@xattr -cr "$(BUILD_DIR)/$(PROJECT_NAME)-universal.app"
+	@echo "📦 将 CLI 打包到 App bundle..."
+	@mkdir -p "$(BUILD_DIR)/$(PROJECT_NAME)-universal.app/Contents/Resources/CLI"
+	@cp "$(BUILD_DIR)/keyden" "$(BUILD_DIR)/$(PROJECT_NAME)-universal.app/Contents/Resources/CLI/keyden"
 	@echo "✅ 通用版本构建完成"
 
 # 构建 Intel 版本 (x86_64)
@@ -101,6 +128,9 @@ build-intel: $(BUILD_DIR) update-docs-version
 	@echo "🔏 签名应用..."
 	@codesign --force --deep --sign - "$(BUILD_DIR)/$(PROJECT_NAME)-x86_64.app"
 	@xattr -cr "$(BUILD_DIR)/$(PROJECT_NAME)-x86_64.app"
+	@echo "📦 将 CLI 打包到 App bundle..."
+	@mkdir -p "$(BUILD_DIR)/$(PROJECT_NAME)-x86_64.app/Contents/Resources/CLI"
+	@cp "$(BUILD_DIR)/keyden" "$(BUILD_DIR)/$(PROJECT_NAME)-x86_64.app/Contents/Resources/CLI/keyden"
 	@echo "✅ Intel 版本构建完成"
 
 # 构建 Apple Silicon 版本 (arm64)
@@ -124,6 +154,9 @@ build-arm: $(BUILD_DIR) update-docs-version
 	@echo "🔏 签名应用..."
 	@codesign --force --deep --sign - "$(BUILD_DIR)/$(PROJECT_NAME)-arm64.app"
 	@xattr -cr "$(BUILD_DIR)/$(PROJECT_NAME)-arm64.app"
+	@echo "📦 将 CLI 打包到 App bundle..."
+	@mkdir -p "$(BUILD_DIR)/$(PROJECT_NAME)-arm64.app/Contents/Resources/CLI"
+	@cp "$(BUILD_DIR)/keyden" "$(BUILD_DIR)/$(PROJECT_NAME)-arm64.app/Contents/Resources/CLI/keyden"
 	@echo "✅ Apple Silicon 版本构建完成"
 
 # 构建所有架构版本
@@ -187,12 +220,13 @@ help:
 	@echo "Keyden 构建脚本"
 	@echo ""
 	@echo "使用方法:"
-	@echo "  make build          - 构建通用版本 (Universal)"
+	@echo "  make build          - 构建通用版本 (Universal) + CLI"
+	@echo "  make build-cli      - 仅构建 CLI 工具"
 	@echo "  make build-intel    - 构建 Intel 版本 (x86_64)"
 	@echo "  make build-arm      - 构建 Apple Silicon 版本 (arm64)"
 	@echo "  make build-all      - 构建所有架构版本"
 	@echo ""
-	@echo "  make dmg            - 创建所有 DMG 安装包"
+	@echo "  make dmg            - 创建所有 DMG 安装包 (包含 CLI)"
 	@echo "  make dmg-universal  - 创建通用版本 DMG"
 	@echo "  make dmg-intel      - 创建 Intel 版本 DMG"
 	@echo "  make dmg-arm        - 创建 Apple Silicon 版本 DMG"
@@ -207,3 +241,11 @@ help:
 	@echo "  dist/$(PROJECT_NAME)-x.x.x-universal.dmg  - 通用版本"
 	@echo "  dist/$(PROJECT_NAME)-x.x.x-x86_64.dmg     - Intel 版本"
 	@echo "  dist/$(PROJECT_NAME)-x.x.x-arm64.dmg      - Apple Silicon 版本"
+	@echo ""
+	@echo "CLI 使用:"
+	@echo "  CLI 工具已内置于 App 中，首次使用时会提示安装"
+	@echo "  或在设置中手动安装到 /usr/local/bin/"
+	@echo ""
+	@echo "  keyden get GitHub     - 获取 GitHub 的验证码"
+	@echo "  keyden list           - 列出所有账户"
+	@echo "  keyden help           - 显示 CLI 帮助"

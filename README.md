@@ -43,6 +43,7 @@
 | 📌 | **Pin & Reorder** - Pin frequently used accounts, drag to reorder |
 | 📂 | **Group View** - Group accounts by issuer for better organization |
 | ⌨️ | **Global Hotkey** - Customizable keyboard shortcut (default: ⌘⇧K) |
+| 🖥️ | **CLI Tool** - Command-line interface for scripts and automation |
 | 🔄 | **Import/Export** - Backup and restore your tokens easily |
 | 🚀 | **Launch at Login** - Start automatically with your Mac |
 
@@ -90,6 +91,35 @@ Simply click "Always Allow" or "Allow" when prompted. Your TOTP secrets are stor
 2. Click "+" to add TOTP accounts (scan QR or enter manually)
 3. Click any code to copy to clipboard
 4. Right-click for more options (pin, delete, export QR)
+
+### Command Line Interface (CLI)
+
+Keyden includes a CLI tool for scripts and automation.
+
+**Installation:**
+
+- **One-Click Install**: Right-click any account → "Copy CLI Command" → prompted to install if not found
+- **From Settings**: Settings → General → CLI Tool → Install
+- **Manual**: The CLI is bundled inside the app at `Keyden.app/Contents/Resources/CLI/keyden`
+
+```bash
+# Usage
+keyden get GitHub                    # Get TOTP code for GitHub
+keyden get GitHub:user@example.com   # Specific account (issuer:account format)
+keyden get GitHub user@example.com   # Same as above (space separated)
+keyden list                          # List all accounts with codes
+keyden search google                 # Search accounts
+keyden help                          # Show help
+
+# Use in scripts
+CODE=$(keyden get GitHub)
+echo "Your code is: $CODE"
+
+# Auto-fill example (copy to clipboard)
+keyden get GitHub | pbcopy
+```
+
+> 💡 **Tip**: When you have multiple accounts under the same issuer (e.g., multiple GitHub accounts), use the `issuer:account` format to specify which one.
 
 ### GitHub Gist Sync
 

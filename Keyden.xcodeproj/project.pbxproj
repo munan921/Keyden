@@ -7,10 +7,16 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		04CLI0001000000000000001 /* keyden */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = keyden; sourceTree = BUILT_PRODUCTS_DIR; };
 		04EA56C32EED9AF3008DFD33 /* Keyden.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Keyden.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		04CLI0002000000000000001 /* KeydenCLI */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = KeydenCLI;
+			sourceTree = "<group>";
+		};
 		04EA56C52EED9AF3008DFD33 /* Keyden */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Keyden;
@@ -19,6 +25,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		04CLI0003000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		04EA56C02EED9AF3008DFD33 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -33,6 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				04EA56C52EED9AF3008DFD33 /* Keyden */,
+				04CLI0002000000000000001 /* KeydenCLI */,
 				04EA56C42EED9AF3008DFD33 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +55,7 @@
 			isa = PBXGroup;
 			children = (
 				04EA56C32EED9AF3008DFD33 /* Keyden.app */,
+				04CLI0001000000000000001 /* keyden */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,6 +63,25 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		04CLI0004000000000000001 /* KeydenCLI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 04CLI0005000000000000001 /* Build configuration list for PBXNativeTarget "KeydenCLI" */;
+			buildPhases = (
+				04CLI0006000000000000001 /* Sources */,
+				04CLI0003000000000000001 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				04CLI0002000000000000001 /* KeydenCLI */,
+			);
+			name = KeydenCLI;
+			productName = keyden;
+			productReference = 04CLI0001000000000000001 /* keyden */;
+			productType = "com.apple.product-type.tool";
+		};
 		04EA56C22EED9AF3008DFD33 /* Keyden */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 04EA56D22EED9AF5008DFD33 /* Build configuration list for PBXNativeTarget "Keyden" */;
@@ -80,6 +114,9 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					04CLI0004000000000000001 = {
+						CreatedOnToolsVersion = 16.2;
+					};
 					04EA56C22EED9AF3008DFD33 = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -103,6 +140,7 @@
 			projectRoot = "";
 			targets = (
 				04EA56C22EED9AF3008DFD33 /* Keyden */,
+				04CLI0004000000000000001 /* KeydenCLI */,
 			);
 		};
 /* End PBXProject section */
@@ -118,6 +156,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		04CLI0006000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		04EA56BF2EED9AF3008DFD33 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,6 +173,32 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		04CLI0007000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = KeydenCLI/KeydenCLI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4W2R66YGZA;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				PRODUCT_NAME = keyden;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		04CLI0008000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = KeydenCLI/KeydenCLI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4W2R66YGZA;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				PRODUCT_NAME = keyden;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		04EA56D02EED9AF5008DFD33 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -254,7 +325,7 @@
 				CODE_SIGN_ENTITLEMENTS = Keyden/Keyden.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"Keyden/Preview Content\"";
 				DEVELOPMENT_TEAM = 4W2R66YGZA;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -266,7 +337,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tassel.Keyden;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -282,7 +353,7 @@
 				CODE_SIGN_ENTITLEMENTS = Keyden/Keyden.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"Keyden/Preview Content\"";
 				DEVELOPMENT_TEAM = 4W2R66YGZA;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -294,7 +365,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tassel.Keyden;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -305,6 +376,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		04CLI0005000000000000001 /* Build configuration list for PBXNativeTarget "KeydenCLI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04CLI0007000000000000001 /* Debug */,
+				04CLI0008000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		04EA56BE2EED9AF3008DFD33 /* Build configuration list for PBXProject "Keyden" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -126,6 +126,31 @@ struct Token: Identifiable, Codable, Equatable {
         return "otpauth://totp/\(encodedLabel)?\(queryString)"
     }
     
+    /// Generate CLI command for this token
+    var cliCommand: String {
+        // Use issuer:account format if both exist, otherwise just issuer or account
+        let identifier: String
+        if !issuer.isEmpty && !account.isEmpty {
+            identifier = "\(issuer):\(account)"
+        } else if !issuer.isEmpty {
+            identifier = issuer
+        } else if !account.isEmpty {
+            identifier = account
+        } else {
+            identifier = displayName
+        }
+        
+        // Escape special characters and wrap in quotes if needed
+        let needsQuotes = identifier.contains(" ") || identifier.contains("\"") || identifier.contains("'")
+        let escaped = identifier.replacingOccurrences(of: "\"", with: "\\\"")
+        
+        if needsQuotes {
+            return "keyden get \"\(escaped)\""
+        } else {
+            return "keyden get \(identifier)"
+        }
+    }
+    
     // Handle migration from old format without isPinned
     enum CodingKeys: String, CodingKey {
         case id, issuer, account, label, secret, digits, period, algorithm, sortOrder, isPinned, updatedAt

@@ -22,6 +22,15 @@
 "unpin" = "Unpin";
 "copy_code" = "Copy Code";
 "copy_otpauth" = "Copy otpauth URL";
+"copy_cli_command" = "Copy CLI Command";
+"cli_not_installed" = "CLI Not Installed";
+"cli_install_message" = "The keyden CLI tool is not installed. Would you like to install it to /usr/local/bin?";
+"cli_installed" = "CLI installed successfully";
+"cli_uninstalled" = "CLI uninstalled";
+"cli_tool" = "CLI Tool";
+"cli_not_installed_short" = "Not installed";
+"uninstall" = "Uninstall";
+"install" = "Install";
 "download_qr_code" = "Download QR Code";
 
 // Add Token

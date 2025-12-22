@@ -104,6 +104,9 @@ struct MenuBarContentView: View {
     @State private var currentView: ViewMode = .list
     @State private var filterMode: FilterMode = .all
     @State private var editingToken: Token?
+    @State private var showCLIInstallAlert = false
+    @State private var pendingCLICommand: String = ""
+    @State private var isInstallingCLI = false
     
     private var theme: ModernTheme {
         ModernTheme(isDark: themeManager.isDark)
@@ -161,6 +164,40 @@ struct MenuBarContentView: View {
                 get: { editingToken != nil },
                 set: { if !$0 { editingToken = nil } }
             ))
+        }
+        .alert(L10n.cliNotInstalled, isPresented: $showCLIInstallAlert) {
+            Button(L10n.install) {
+                installCLI()
+            }
+            Button(L10n.cancel, role: .cancel) {}
+        } message: {
+            Text(L10n.cliInstallMessage)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showCLIInstallPrompt)) { notification in
+            if let command = notification.object as? String {
+                pendingCLICommand = command
+                showCLIInstallAlert = true
+            }
+        }
+    }
+    
+    // MARK: - CLI Installation
+    private func installCLI() {
+        isInstallingCLI = true
+        CLIService.shared.installCLI { result in
+            isInstallingCLI = false
+            switch result {
+            case .success:
+                // Copy the pending command after successful installation
+                if !pendingCLICommand.isEmpty {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(pendingCLICommand, forType: .string)
+                    pendingCLICommand = ""
+                }
+                ToastManager.shared.show(L10n.cliInstalled, icon: "checkmark.circle.fill")
+            case .failure(let error):
+                ToastManager.shared.show(error.localizedDescription, icon: "xmark.circle.fill")
+            }
         }
     }
     
@@ -652,6 +689,10 @@ struct TokenRow: View {
                 Label(L10n.copyOtpauth, systemImage: "link")
             }
             
+            Button(action: copyCLICommand) {
+                Label(L10n.copyCLICommand, systemImage: "terminal")
+            }
+            
             Button(action: downloadQRCode) {
                 Label(L10n.downloadQRCode, systemImage: "qrcode")
             }
@@ -734,6 +775,20 @@ struct TokenRow: View {
     private func copyOtpauth() {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(token.otpauthURL, forType: .string)
+        ToastManager.shared.show(L10n.copied)
+    }
+    
+    private func copyCLICommand() {
+        // Check if CLI is installed
+        if !CLIService.shared.isInstalled {
+            // Show install prompt via notification
+            NotificationCenter.default.post(name: .showCLIInstallPrompt, object: token.cliCommand)
+            return
+        }
+        
+        let command = token.cliCommand
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(command, forType: .string)
         ToastManager.shared.show(L10n.copied)
     }
     

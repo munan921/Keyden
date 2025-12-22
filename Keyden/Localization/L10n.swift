@@ -112,6 +112,15 @@ class LanguageManager: ObservableObject {
         "unpin": "Unpin",
         "copy_code": "Copy Code",
         "copy_otpauth": "Copy otpauth URL",
+        "copy_cli_command": "Copy CLI Command",
+        "cli_not_installed": "CLI Not Installed",
+        "cli_install_message": "The keyden CLI tool is not installed. Would you like to install it to /usr/local/bin?",
+        "cli_installed": "CLI installed successfully",
+        "cli_uninstalled": "CLI uninstalled",
+        "cli_tool": "CLI Tool",
+        "cli_not_installed_short": "Not installed",
+        "uninstall": "Uninstall",
+        "install": "Install",
         "download_qr_code": "Download QR Code",
         
         // Add Token
@@ -276,6 +285,15 @@ enum L10n {
     static var unpin: String { manager.localizedString(forKey: "unpin") }
     static var copyCode: String { manager.localizedString(forKey: "copy_code") }
     static var copyOtpauth: String { manager.localizedString(forKey: "copy_otpauth") }
+    static var copyCLICommand: String { manager.localizedString(forKey: "copy_cli_command") }
+    static var cliNotInstalled: String { manager.localizedString(forKey: "cli_not_installed") }
+    static var cliInstallMessage: String { manager.localizedString(forKey: "cli_install_message") }
+    static var cliInstalled: String { manager.localizedString(forKey: "cli_installed") }
+    static var cliUninstalled: String { manager.localizedString(forKey: "cli_uninstalled") }
+    static var cliTool: String { manager.localizedString(forKey: "cli_tool") }
+    static var cliNotInstalledShort: String { manager.localizedString(forKey: "cli_not_installed_short") }
+    static var uninstall: String { manager.localizedString(forKey: "uninstall") }
+    static var install: String { manager.localizedString(forKey: "install") }
     static var downloadQRCode: String { manager.localizedString(forKey: "download_qr_code") }
     
     // MARK: - Add Token
