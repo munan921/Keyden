@@ -82,6 +82,20 @@ brew install --cask tasselx/tap/keyden
 
 在弹出提示时点击「始终允许」或「允许」即可。您的 TOTP 密钥安全存储在 macOS 钥匙串中，更新后数据不会丢失。
 
+### 提示"Keyden 已损坏，无法打开"
+
+由于应用未经过 Apple 公证，macOS Gatekeeper 可能会阻止运行并显示"已损坏"的错误提示。
+
+**解决方法：**
+
+打开终端，运行以下命令：
+
+```bash
+xattr -cr /Applications/Keyden.app
+```
+
+这会移除隔离属性，之后应用即可正常运行。
+
 ---
 
 ## 🚀 使用
@@ -264,7 +278,9 @@ make build-all      # 通用
 
 ## ☕ 捐赠
 
-如果 Keyden 对你有帮助，欢迎请我喝杯咖啡
+如果 Keyden 对你有帮助，欢迎请我喝杯咖啡 ☕
+
+您的赞助可以帮助我购买 Apple 开发者账号，届时应用将获得正式签名和公证，不再出现"已损坏"的提示。
 
 <p align="center">
   <img src="assets/alipay.png" width="180" alt="支付宝" />

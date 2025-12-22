@@ -82,6 +82,19 @@ After installing a new version, macOS may prompt you to authorize Keychain acces
 
 Simply click "Always Allow" or "Allow" when prompted. Your TOTP secrets are stored securely in the macOS Keychain and will remain intact after the update.
 
+### "Keyden is damaged and can't be opened" Error
+
+Since the app is not notarized by Apple, macOS Gatekeeper may block it and show a "damaged" error message.
+
+**Solution:**
+
+Open Terminal and run:
+
+```bash
+xattr -cr /Applications/Keyden.app
+```
+
+This removes the quarantine attribute and allows the app to run normally.
 
 ---
 
@@ -263,7 +276,9 @@ make build-all      # Universal
 
 ## ☕ Donate
 
-If you find Keyden helpful, consider buying me a coffee
+If you find Keyden helpful, consider buying me a coffee ☕
+
+Your sponsorship can help me purchase an Apple Developer account, which will allow the app to be properly signed and notarized — no more "damaged" warnings!
 
 <p align="center">
   <img src="assets/alipay.png" width="180" alt="Alipay" />
